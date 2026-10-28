@@ -1,0 +1,17 @@
+:root {
+  --relly-bg: #1c1d22;
+  --relly-fg: #d1d5db;
+  --relly-header-bg: #141518;
+  --relly-header-fg: #f3f4f6;
+  --relly-accent: #6366f1;
+  --relly-accent-hover: #4f46e5;
+  --relly-border: rgba(255, 255, 255, 0.08);
+  --relly-input-bg: #26272e;
+  --relly-input-hover: #2f3039;
+  --relly-radius: 6px;
+  --relly-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --relly-font-size: 11px;
+  --relly-row-height: 26px;
+  --relly-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --relly-transition: all 0.2s var(--relly-ease);
+}

@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>relly-ui Interactive Playground</title>
+  <style>
+    /* Intentionally aggressive global styles on host page to test Shadow DOM isolation */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    button {
+      font-family: inherit;
+    }
+    body {
+      background: radial-gradient(circle at 50% 50%, #151621 0%, #0c0d12 100%);
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+    }
+    #bg-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+    .hud {
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      z-index: 10;
+      background: rgba(18, 19, 25, 0.88);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 16px 20px;
+      max-width: 460px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .hud h1 {
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+    .badge {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: #6366f1;
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .hud p {
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    .features-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .feature-tag {
+      font-size: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #cbd5e1;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .shortcuts {
+      display: flex;
+      gap: 12px;
+      font-size: 11px;
+      color: #64748b;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 10px;
+    }
+    .kbd {
+      background: #262734;
+      border: 1px solid #3c3d4f;
+      color: #e2e8f0;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg-canvas"></canvas>
+
+  <div class="hud">
+    <h1>relly-ui <span class="badge">v1.0.0</span></h1>
+    <p>
+      High-performance GUI control panel library for JavaScript & TypeScript.
+      Encapsulated inside <strong>Shadow DOM</strong> with Web Audio Sound FX, Resizing, and JSON Import.
+    </p>
+    <div class="features-list">
+      <span class="feature-tag">🛡️ Shadow DOM</span>
+      <span class="feature-tag">↔️ Resizable</span>
+      <span class="feature-tag">📥 Import JSON</span>
+      <span class="feature-tag">📋 Copy JSON</span>
+      <span class="feature-tag">🔊 Sound FX</span>
+      <span class="feature-tag">🔀 showIf</span>
+      <span class="feature-tag">🪟 Multi-Column</span>
+      <span class="feature-tag">🎨 Themes</span>
+      <span class="feature-tag">🔍 Search</span>
+      <span class="feature-tag">🗂️ Tabs</span>
+    </div>
+    <div class="shortcuts">
+      <div><span class="kbd">H</span> Toggle Panel</div>
+      <div><span class="kbd">Drag Corner</span> Resize</div>
+      <div><span class="kbd">_</span> Collapse</div>
+    </div>
+  </div>
+
+  <script>
+    // 1. Simulated Canvas Visualizer controlled by RellyUI
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // Application state
+    const appState = {
+      theme: 'dark',
+      soundPack: 'synth',
+      engineStatus: 'online',
+      particleCount: 90,
+      particleLifeRange: [2, 12],
+      vector3D: { x: 0.5, y: 1.2, z: -0.8 },
+      speed: 1.2,
+      particleSize: 4,
+      connectionDistance: 130,
+      primaryColor: '#6366f1',
+      showConnections: true,
+      shape: 'circles',
+      fps: 200,
+      frameTime: 16.6,
+      activeParticles: 90,
+      gravityCenter: { x: window.innerWidth / 2, y: window.innerHeight / 2 },
+      gravityPull: 0.05,
+      isDevMode: true,
+      debugBoundX: 0,
+      debugBoundY: 100
+    };
+
+    window.addEventListener('resize', () => {
+      appState.gravityCenter.x = window.innerWidth / 2;
+      appState.gravityCenter.y = window.innerHeight / 2;
+    });
+
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.vx = (Math.random() - 0.5) * appState.speed;
+        this.vy = (Math.random() - 0.5) * appState.speed;
+        this.radius = Math.random() * appState.particleSize + 2;
+      }
+      update() {
+        // Gravitational pull towards center
+        const dx = appState.gravityCenter.x - this.x;
+        const dy = appState.gravityCenter.y - this.y;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        if (dist > 50) {
+          this.vx += (dx / dist) * appState.gravityPull;
+          this.vy += (dy / dist) * appState.gravityPull;
+        }
+
+        this.x += this.vx * (appState.speed / 1.2);
+        this.y += this.vy * (appState.speed / 1.2);
+
+        if (this.x < 0) { this.x = canvas.width; }
+        if (this.x > canvas.width) { this.x = 0; }
+        if (this.y < 0) { this.y = canvas.height; }
+        if (this.y > canvas.height) { this.y = 0; }
+      }
+      draw() {
+        ctx.fillStyle = appState.primaryColor;
+        ctx.beginPath();
+        if (appState.shape === 'squares') {
+          ctx.rect(this.x, this.y, this.radius * 2, this.radius * 2);
+        } else {
+          ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        }
+        ctx.fill();
+      }
+    }
+
+    let particles = Array.from({ length: appState.particleCount }, () => new Particle());
+
+    function updateParticleCount() {
+      while (particles.length < appState.particleCount) {
+        particles.push(new Particle());
+      }
+      while (particles.length > appState.particleCount) {
+        particles.pop();
+      }
+      appState.activeParticles = particles.length;
+    }
+
+    let lastTime = performance.now();
+    let frameCount = 0;
+    let fpsTimer = 0;
+
+    function animate(now) {
+      const dt = now - lastTime;
+      lastTime = now;
+
+      frameCount++;
+      fpsTimer += dt;
+      if (fpsTimer >= 250) {
+        appState.fps = Math.round((frameCount * 1000) / fpsTimer);
+        appState.frameTime = Number((1000 / Math.max(1, appState.fps)).toFixed(1));
+        frameCount = 0;
+        fpsTimer = 0;
+        if (window.perfGraph) {
+          window.perfGraph.pushSeries('frameTime', appState.frameTime);
+        }
+      }
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (appState.showConnections) {
+        ctx.strokeStyle = appState.primaryColor;
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < appState.connectionDistance) {
+              const alpha = (1 - dist / appState.connectionDistance) * 0.35;
+              ctx.globalAlpha = alpha;
+              ctx.lineWidth = 1;
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.stroke();
+            }
+          }
+        }
+        ctx.globalAlpha = 1.0;
+      }
+
+      for (const p of particles) {
+        p.update();
+        p.draw();
+      }
+
+      requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+
+    // 2. Dynamic CDN script loading simulation (as in user request)
+    function initUI() {
+      const ui = new window.RellyUI({
+        title: 'Simulation Controls',
+        position: { top: 24, right: 24 },
+        width: 320,
+        height: 480,       // ↔️ Resizable
+        hotkey: 'KeyH',
+        shadowDOM: true,   // 🛡️ 100% Shadow DOM style isolation
+        searchBar: true,   // 🔍 Real-time search bar
+        sound: true,       // 🔊 Web Audio micro-sound FX
+        soundPack: 'synth',
+        autoSave: true,    // 💾 Automatic session & state persistence
+        autoSaveKey: 'relly-demo-autosave',
+        resizable: true    // ↔️ Drag handle
+      });
+
+      // Next-Gen Performance Telemetry Graph (Continuous Rolling Time-Series + Crosshair Inspector)
+      window.perfGraph = ui.addGraph(appState, 'fps')
+        .setLabel('Telemetry HUD')
+        .setRange(0, 144)
+        .setColor('#10b981')
+        .setTooltip('Real-time frame rate & frame time (click to pause/inspect)')
+        .setFormat(v => `${Math.round(v)} FPS`);
+
+      window.perfGraph.addSeries('frameTime', {
+        label: 'Frame Time',
+        color: '#f43f5e',
+        fillColor: 'rgba(244, 63, 94, 0.2)'
+      });
+
+      // Dynamic readout
+      ui.addDynamicLabel(appState, 'activeParticles')
+        .setLabel('Active Nodes')
+        .setFormat(v => `${v} particles`)
+        .listen();
+
+      // Live Status Indicator
+      ui.addStatus(appState, 'engineStatus', 'online', 'ONLINE', 'WebGL 2.0')
+        .setLabel('Engine Core')
+        .setTooltip('Real-time simulation status');
+
+      // Tab 1: Visuals
+      const visualsTab = ui.addTab('Visuals');
+
+      visualsTab.addColor(appState, 'primaryColor')
+        .setLabel('Color')
+        .setTooltip('Accent color with quick swatches and EyeDropper')
+        .setSwatches(['#6366f1', '#00ff66', '#00f0ff', '#ff71ce', '#7aa2f7', '#f43f5e', '#f59e0b', '#10b981']);
+
+      visualsTab.addCheckbox(appState, 'showConnections')
+        .setLabel('Render Mesh')
+        .setTooltip('Toggle inter-particle line connections');
+
+      // Modern Segmented Control for shape selection
+      visualsTab.addSegmented(appState, 'shape', ['circles', 'squares', 'stars'])
+        .setLabel('Node Shape')
+        .setTooltip('Switch particle geometry in 1 click');
+
+      visualsTab.addSlider(appState, 'connectionDistance')
+        .setLabel('Link Distance')
+        .setMin(40)
+        .setMax(250)
+        .setStep(5)
+        .setTooltip('Maximum distance before mesh links disconnect');
+
+      // Theme selector in Visuals
+      visualsTab.addSelect(appState, 'theme', [
+        'dark',
+        'light',
+        'cyberpunk',
+        'nord',
+        'dracula',
+        'tokyo-night',
+        'matrix',
+        'synthwave'
+      ])
+        .setLabel('Theme Preset')
+        .onChange(theme => ui.setTheme(theme));
+
+      // Sound Pack Selector
+      visualsTab.addSelect(appState, 'soundPack', ['synth', 'mechanical', 'bubble', 'arcade'])
+        .setLabel('Sound FX')
+        .setTooltip('Acoustic sound profile for interactions')
+        .onChange(pack => ui.setSoundPack(pack));
+
+      // Tab 2: Physics
+      const physicsTab = ui.addTab('Physics');
+
+      physicsTab.addSlider(appState, 'particleCount')
+        .setLabel('Count')
+        .setMin(10)
+        .setMax(250)
+        .setStep(5)
+        .setTooltip('Total number of spawned particle nodes')
+        .onChange(() => updateParticleCount());
+
+      // Velocity slider with customized Context Menu (Right-click!)
+      const speedSlider = physicsTab.addSlider(appState, 'speed')
+        .setLabel('Velocity')
+        .setMin(0.1)
+        .setMax(5.0)
+        .setStep(0.1)
+        .setTooltip('Global movement multiplier (Right-click for options!)')
+        .setContextMenu([
+          {
+            label: 'Reset to Default (1.2)',
+            action: (comp) => {
+              comp.setValue(1.2);
+              ui.notify('Velocity reset to default (1.2)', 'info');
+            }
+          },
+          {
+            label: 'Copy Velocity Value',
+            action: (comp) => {
+              if (navigator.clipboard) {
+                navigator.clipboard.writeText(String(comp.getValue()));
+              }
+              ui.notify('Value copied to clipboard!', 'info');
+            }
+          },
+          { separator: true, label: '' },
+          {
+            label: 'Turbo Boost (5.0)',
+            danger: true,
+            action: (comp) => {
+              comp.setValue(5.0);
+              ui.notify('Turbo Boost Mode Activated!', 'warning');
+            }
+          }
+        ]);
+
+      // 3D Vector Scrubber
+      physicsTab.addPoint3D(appState, 'vector3D', { min: -10, max: 10, step: 0.1 })
+        .setLabel('Wind Vector (3D)')
+        .setTooltip('Drag-scrub X, Y, Z forces in 3D space');
+
+      // Dual-Handle Range Slider
+      physicsTab.addRange(appState, 'particleLifeRange', { min: 0, max: 20, step: 0.5 })
+        .setLabel('Life Span Range')
+        .setTooltip('Dual-thumb min/max boundary slider');
+
+      physicsTab.addPoint2D(appState, 'gravityCenter')
+        .setLabel('Gravity Center')
+        .setTooltip('X and Y coordinates of gravitational attractor');
+
+      physicsTab.addSlider(appState, 'gravityPull')
+        .setLabel('Attraction')
+        .setMin(0.0)
+        .setMax(0.2)
+        .setStep(0.01)
+        .setTooltip('Strength of gravitational acceleration');
+
+      // Tab 3: Developer & Presets
+      const devTab = ui.addTab('Dev & JSON');
+
+      devTab.addCheckbox(appState, 'isDevMode')
+        .setLabel('Enable DEV Mode')
+        .setTooltip('Toggles conditional visibility of developer tools via showIf');
+
+      // Toast notification test buttons
+      devTab.addButton('Trigger Toast (Success)', () => {
+        ui.notify('Configuration synchronized successfully!', 'success');
+      });
+
+      devTab.addButton('Trigger Toast (Warning)', () => {
+        ui.notify('High GPU node load detected!', 'warning');
+      });
+
+      // Multi-column row layout (conditioned on isDevMode)
+      const devRow = devTab.addRow();
+      devRow.addSlider(appState, 'debugBoundX').setLabel('Min X').showIf(() => appState.isDevMode);
+      devRow.addSlider(appState, 'debugBoundY').setLabel('Max X').showIf(() => appState.isDevMode);
+
+      // Section with showIf
+      const devSection = devTab.addSection('Secret DEV Metrics').showIf(() => appState.isDevMode);
+      devSection.addButton('Benchmark 10,000 Nodes', () => {
+        appState.particleCount = 1000;
+        updateParticleCount();
+      });
+
+      devTab.addButton('Export Configuration (JSON)', () => {
+        ui.copyJSON();
+      }).setTooltip('Copies active parameters to system clipboard as JSON');
+
+      devTab.addButton('Save to LocalStorage', () => {
+        ui.save('relly-sim-preset');
+        alert('Preset saved to localStorage!');
+      });
+
+      devTab.addButton('Load from LocalStorage', () => {
+        ui.load('relly-sim-preset');
+        updateParticleCount();
+      });
+    }
+
+    // Dynamic script injection matching user example:
+    const script = document.createElement('script');
+    script.type = 'module';
+    script.src = '/src/index.ts';
+    script.onload = initUI;
+    document.body.appendChild(script);
+  </script>
+</body>
+</html>

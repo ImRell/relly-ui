@@ -25,8 +25,8 @@ jobs:
       - name: Run Typecheck
         run: npm run typecheck
 
-      - name: Run Vitest Suite
-        run: npm run test
-
       - name: Build All Targets
         run: npm run build
+
+      - name: Run Vitest Suite
+        run: npm run test

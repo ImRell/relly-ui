@@ -1,6 +1,6 @@
 {
   "name": "relly-ui",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "High-performance, elegant, and extensible GUI control panel library with CDN support and Fluent API",
   "main": "./dist/relly-ui.umd.js",
   "module": "./dist/relly-ui.es.js",

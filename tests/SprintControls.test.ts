@@ -156,8 +156,16 @@ describe('Sprint Controls & Features', () => {
       const slider = ui.addSlider(state, 'value', { min: 0, max: 200 });
 
       const onReset = vi.fn();
+      let receivedComponent: any = null;
       slider.setContextMenu([
-        { label: 'Reset to 0', action: () => onReset() },
+        {
+          label: 'Reset to 0',
+          action: (comp) => {
+            receivedComponent = comp;
+            comp?.setValue(0);
+            onReset();
+          }
+        },
         { separator: true, label: '' },
         { label: 'Danger Action', danger: true, action: () => {} }
       ]);
@@ -183,6 +191,8 @@ describe('Sprint Controls & Features', () => {
       // Click first action
       items[0].click();
       expect(onReset).toHaveBeenCalled();
+      expect(receivedComponent).toBe(slider);
+      expect(state.value).toBe(0);
       expect(menu.style.display).toBe('none');
 
       ui.destroy();

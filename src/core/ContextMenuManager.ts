@@ -83,8 +83,9 @@ export class ContextMenuManager {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         this.soundEngine?.playClick();
+        const comp = this.currentComponent;
         this.hide();
-        item.action(this.currentComponent);
+        item.action(comp);
       });
 
       this.menuEl.appendChild(btn);

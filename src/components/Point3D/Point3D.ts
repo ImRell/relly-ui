@@ -99,8 +99,10 @@ export class Point3D extends BaseComponent<Point3DVal> {
         let newVal = startVal + dx * stepDelta;
         if (this.min !== undefined) newVal = Math.max(this.min, newVal);
         if (this.max !== undefined) newVal = Math.min(this.max, newVal);
-        const decimals = (this.step.toString().split('.')[1] || '').length;
-        newVal = parseFloat(newVal.toFixed(Math.max(decimals, 2)));
+        const decimals = (stepDelta.toString().split('.')[1] || '').length;
+        const invStep = 1 / stepDelta;
+        newVal = Math.round(newVal * invStep) / invStep;
+        newVal = parseFloat(newVal.toFixed(Math.min(decimals, 4)));
 
         const currentVal = this.getValue();
         if (Array.isArray(currentVal)) {

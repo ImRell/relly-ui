@@ -287,7 +287,7 @@ export class Graph extends BaseComponent<number | Record<string, number>> {
     const current = this.targetObject[this.property];
     const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
 
-    if (now - this.lastSampleTime >= this.sampleInterval || current !== this.prevValue) {
+    if (now - this.lastSampleTime >= this.sampleInterval) {
       this.lastSampleTime = now;
       this.prevValue = current;
       this.update();
@@ -418,7 +418,17 @@ export class Graph extends BaseComponent<number | Record<string, number>> {
     if (series.buffer.length > this.bufferSize) {
       series.buffer.shift();
     }
+    this.updateStats();
+    this.draw();
     return this;
+  }
+
+  public getLatestValue(): number {
+    if (this.primarySeries.buffer.length > 0) {
+      return this.primarySeries.buffer[this.primarySeries.buffer.length - 1];
+    }
+    const val = this.getValue();
+    return typeof val === 'number' && !isNaN(val) ? val : 0;
   }
 
   private updateStats(): void {

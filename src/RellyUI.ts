@@ -17,7 +17,7 @@ import { RellyUIOptions, ThemeInput, SchemaDefinition, SoundPack, ToastType } fr
 import { injectStyles } from './styles/injector';
 
 export class RellyUI extends ContainerHelper {
-  public static version: string = '1.0.0';
+  public static version: string = '1.0.2';
 
   private hostEl?: HTMLElement;
   private shadowRoot: ShadowRoot | null = null;
@@ -50,8 +50,10 @@ export class RellyUI extends ContainerHelper {
   private autoSaveTimeout: any = null;
 
   private sparklineCtx?: CanvasRenderingContext2D | null;
-  private sparklineData: number[] = [12, 14, 15, 18, 16, 20, 22, 21, 24, 25, 28, 30];
+  private sparklineData: number[] = [16, 17, 18, 17, 19, 20, 21, 20, 22, 23, 22, 24, 25, 24, 25, 26];
   private sparklineAnimId?: number;
+  private lastSparklineTime: number = 0;
+  private sparklineInterval: number = 180; // Calm, readable telemetry rate (~5.5 samples per sec)
 
   constructor(options: RellyUIOptions = {}) {
     const useShadow = options.shadowDOM !== false;
@@ -486,9 +488,13 @@ export class RellyUI extends ContainerHelper {
 
     this.sparklineCtx = canvas.getContext('2d');
 
-    const animateSparkline = () => {
+    const animateSparkline = (time: number) => {
       if (this.isMiniHud && this.sparklineCtx) {
-        this.drawSparkline();
+        if (!this.lastSparklineTime || time - this.lastSparklineTime >= this.sparklineInterval) {
+          this.lastSparklineTime = time;
+          this.updateSparklinePoint();
+          this.drawSparkline();
+        }
       }
       if (typeof requestAnimationFrame !== 'undefined') {
         this.sparklineAnimId = requestAnimationFrame(animateSparkline);
@@ -500,6 +506,39 @@ export class RellyUI extends ContainerHelper {
     }
   }
 
+  private findActiveGraphValue(): number | null {
+    for (const child of this.children) {
+      if (typeof (child as any).getLatestValue === 'function') {
+        return (child as any).getLatestValue();
+      }
+    }
+    if (this.tabsManagerInstance) {
+      for (const tab of this.tabsManagerInstance.getTabs()) {
+        for (const comp of (tab as any).children || []) {
+          if (typeof (comp as any).getLatestValue === 'function') {
+            return (comp as any).getLatestValue();
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  private updateSparklinePoint(): void {
+    let next: number;
+    const activeVal = this.findActiveGraphValue();
+    if (activeVal !== null && !isNaN(activeVal) && isFinite(activeVal)) {
+      next = activeVal;
+    } else {
+      const last = this.sparklineData[this.sparklineData.length - 1] ?? 20;
+      next = Math.max(8, Math.min(28, last + (Math.random() - 0.49) * 2.2));
+    }
+    this.sparklineData.push(next);
+    if (this.sparklineData.length > 20) {
+      this.sparklineData.shift();
+    }
+  }
+
   private drawSparkline(): void {
     const ctx = this.sparklineCtx;
     if (!ctx) return;
@@ -507,38 +546,36 @@ export class RellyUI extends ContainerHelper {
     const h = 16;
     ctx.clearRect(0, 0, w, h);
 
-    const last = this.sparklineData[this.sparklineData.length - 1];
-    const next = Math.max(8, Math.min(26, last + (Math.random() - 0.48) * 3));
-    this.sparklineData.push(next);
-    if (this.sparklineData.length > 14) this.sparklineData.shift();
+    if (this.sparklineData.length < 2) return;
 
     const min = Math.min(...this.sparklineData) - 1;
     const max = Math.max(...this.sparklineData) + 1;
     const range = max - min || 1;
     const step = w / (this.sparklineData.length - 1);
 
+    // Smooth gradient fill
     ctx.beginPath();
     ctx.moveTo(0, h);
     for (let i = 0; i < this.sparklineData.length; i++) {
       const x = i * step;
-      const y = h - ((this.sparklineData[i] - min) / range) * (h - 2) - 1;
-      if (i === 0) ctx.lineTo(x, y);
-      else ctx.lineTo(x, y);
+      const y = h - ((this.sparklineData[i] - min) / range) * (h - 3) - 1.5;
+      ctx.lineTo(x, y);
     }
     ctx.lineTo(w, h);
     ctx.closePath();
-    ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.2)';
     ctx.fill();
 
+    // Smooth stroke
     ctx.beginPath();
     for (let i = 0; i < this.sparklineData.length; i++) {
       const x = i * step;
-      const y = h - ((this.sparklineData[i] - min) / range) * (h - 2) - 1;
+      const y = h - ((this.sparklineData[i] - min) / range) * (h - 3) - 1.5;
       if (i === 0) ctx.moveTo(x, y);
       else ctx.lineTo(x, y);
     }
     ctx.strokeStyle = '#38bdf8';
-    ctx.lineWidth = 1.4;
+    ctx.lineWidth = 1.3;
     ctx.stroke();
   }
 
@@ -550,6 +587,15 @@ export class RellyUI extends ContainerHelper {
 
   public toggleCollapse(): this {
     return this.setCollapsed(!this.isPanelCollapsed);
+  }
+
+  public setHotkey(hotkey: string | null): this {
+    if (!this.hotkeyInstance) {
+      this.hotkeyInstance = new HotkeyManager(hotkey, () => this.toggle());
+    } else {
+      this.hotkeyInstance.setHotkey(hotkey);
+    }
+    return this;
   }
 
   public setCollapsed(collapsed: boolean): this {

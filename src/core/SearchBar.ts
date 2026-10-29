@@ -163,6 +163,28 @@ export class SearchBar {
         }
       }
     });
+
+    // Auto-switch tab if current active tab has no matches but another tab does
+    const activeTabContent = this.bodyEl.querySelector<HTMLElement>('.relly-tab-content:not([style*="display: none"])');
+    const activeMatches = activeTabContent?.querySelectorAll<HTMLElement>(
+      '.relly-row:not(.relly-search-hidden), .relly-graph-row:not(.relly-search-hidden)'
+    );
+
+    if (!activeMatches || activeMatches.length === 0) {
+      const allTabContents = Array.from(this.bodyEl.querySelectorAll<HTMLElement>('.relly-tab-content'));
+      for (let i = 0; i < allTabContents.length; i++) {
+        const matchesInTab = allTabContents[i].querySelectorAll<HTMLElement>(
+          '.relly-row:not(.relly-search-hidden), .relly-graph-row:not(.relly-search-hidden)'
+        );
+        if (matchesInTab.length > 0) {
+          const tabBtns = this.bodyEl.parentElement?.querySelectorAll<HTMLButtonElement>('.relly-tab-btn');
+          if (tabBtns && tabBtns[i]) {
+            tabBtns[i].click();
+            break;
+          }
+        }
+      }
+    }
   }
 
   public clear(): void {

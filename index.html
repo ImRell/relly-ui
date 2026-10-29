@@ -291,7 +291,6 @@
         autoSave: true,    // 💾 Automatic session & state persistence
         autoSaveKey: 'relly-demo-autosave',
         resizable: true,   // ↔️ Drag handle
-        ghostOnIdle: true,
       });
 
       // Next-Gen Performance Telemetry Graph (Continuous Rolling Time-Series + Crosshair Inspector)
@@ -299,6 +298,7 @@
         .setLabel('Telemetry HUD')
         .setRange(0, 144)
         .setColor('#10b981')
+        .setSampleInterval(180)
         .setTooltip('Real-time frame rate & frame time (click to pause/inspect)')
         .setFormat(v => `${Math.round(v)} FPS`);
 

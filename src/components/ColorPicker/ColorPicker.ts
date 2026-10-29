@@ -74,6 +74,10 @@ export class ColorPicker extends BaseComponent<string> {
       this.nativeColorInput.click();
     });
 
+    this.hexTextEl.addEventListener('click', () => {
+      this.nativeColorInput.click();
+    });
+
     this.nativeColorInput.addEventListener('input', () => {
       const color = this.nativeColorInput.value;
       this.setValue(color);

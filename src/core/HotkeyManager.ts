@@ -6,7 +6,7 @@ export class HotkeyManager {
     private onToggle: () => void
   ) {
     this.onKeyDownBound = this.onKeyDown.bind(this);
-    if (this.hotkey && typeof window !== 'undefined') {
+    if (typeof window !== 'undefined') {
       window.addEventListener('keydown', this.onKeyDownBound);
     }
   }

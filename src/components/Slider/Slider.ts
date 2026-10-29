@@ -84,8 +84,10 @@ export class Slider extends BaseComponent<number> {
         const deltaVal = dx * stepDelta;
         let newVal = startVal + deltaVal;
         newVal = Math.max(this.min, Math.min(this.max, newVal));
-        const decimals = (this.step.toString().split('.')[1] || '').length;
-        newVal = parseFloat(newVal.toFixed(Math.max(decimals, 2)));
+        const decimals = (stepDelta.toString().split('.')[1] || '').length;
+        const invStep = 1 / stepDelta;
+        newVal = Math.round(newVal * invStep) / invStep;
+        newVal = parseFloat(newVal.toFixed(Math.min(decimals, 4)));
         this.triggerSound();
         this.setValue(newVal);
         ev.preventDefault();

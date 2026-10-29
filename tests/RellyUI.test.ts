@@ -68,4 +68,41 @@ describe('RellyUI Core Facade', () => {
     ui = new RellyUI({ container: customContainer });
     expect(customContainer.contains(ui.getHost() || ui.getElement())).toBe(true);
   });
+
+  it('should allow dynamically configuring hotkey even when initialized with null', () => {
+    ui = new RellyUI({ hotkey: null });
+    const panelEl = ui.getElement();
+    expect(panelEl.classList.contains('relly-hidden')).toBe(false);
+
+    ui.setHotkey('KeyK');
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyK', bubbles: true }));
+    expect(panelEl.classList.contains('relly-hidden')).toBe(true);
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyK', bubbles: true }));
+    expect(panelEl.classList.contains('relly-hidden')).toBe(false);
+  });
+
+  it('should maintain integer precision on integer-stepped slider during scrubbing', () => {
+    const state = { count: 10 };
+    ui = new RellyUI();
+    const slider = ui.addSlider(state, 'count').setMin(0).setMax(100).setStep(1);
+
+    const input = slider.element.querySelector('.relly-slider-number') as HTMLInputElement;
+    input.dispatchEvent(new MouseEvent('mousedown', { clientX: 100, bubbles: true }));
+    window.dispatchEvent(new MouseEvent('mousemove', { clientX: 107, bubbles: true }));
+    window.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+
+    expect(Number.isInteger(state.count)).toBe(true);
+    expect(state.count).toBe(17);
+  });
+
+  it('should respect graph sampleInterval and avoid over-sampling', () => {
+    const state = { metric: 10 };
+    ui = new RellyUI();
+    const graph = ui.addGraph(state, 'metric').setSampleInterval(200);
+
+    expect(graph.getSampleInterval()).toBe(200);
+    expect(graph.getLatestValue()).toBe(10);
+  });
 });

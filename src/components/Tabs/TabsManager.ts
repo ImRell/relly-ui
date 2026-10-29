@@ -59,6 +59,10 @@ export class TabsManager {
     return this.activeTab;
   }
 
+  public getTabs(): Tab[] {
+    return this.tabs;
+  }
+
   public destroy(): void {
     for (const tab of this.tabs) {
       tab.destroy();

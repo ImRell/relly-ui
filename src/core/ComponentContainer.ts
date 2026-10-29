@@ -10,17 +10,27 @@ import { Point3D } from '../components/Point3D/Point3D';
 import { RangeSlider } from '../components/Range/RangeSlider';
 import { Segmented } from '../components/Segmented/Segmented';
 import { StatusIndicator } from '../components/Status/StatusIndicator';
+import { Switch } from '../components/Switch/Switch';
+import { ButtonGroup } from '../components/ButtonGroup/ButtonGroup';
+import { TextInput } from '../components/TextInput/TextInput';
+import { Progress } from '../components/Progress/Progress';
+import { Separator } from '../components/Separator/Separator';
 import { BindingEngine, Listenable } from './BindingEngine';
 import { PresetManager } from './PresetManager';
 import { SoundEngine } from './SoundEngine';
 import {
+  ButtonGroupItem,
   ComponentFactoryOptions,
   ConditionPredicate,
   OnClickCallback,
   Point2DOptions,
   Point3DOptions,
+  ProgressOptions,
   RangeOptions,
-  StatusType
+  SeparatorOptions,
+  StatusType,
+  SwitchOptions,
+  TextInputOptions
 } from '../types';
 import { BaseComponent } from './BaseComponent';
 
@@ -662,6 +672,183 @@ export abstract class ContainerHelper {
     return this.addStatus(targetOrOptions, property, initialStatus, badge, detail);
   }
 
+  public addSwitch(targetOrOptions: any, property?: string, options?: SwitchOptions): Switch {
+    if (
+      typeof targetOrOptions === 'object' &&
+      targetOrOptions !== null &&
+      property === undefined &&
+      'object' in targetOrOptions &&
+      'property' in targetOrOptions
+    ) {
+      const opts = targetOrOptions;
+      const label = opts.label || (opts.property.charAt(0).toUpperCase() + opts.property.slice(1));
+      const comp = new Switch(
+        label,
+        opts.object,
+        opts.property,
+        opts,
+        this.bindingEngine,
+        this.presetManager,
+        this.soundEngine
+      );
+      if (opts.tooltip) comp.setTooltip(opts.tooltip);
+      if (opts.contextMenu) comp.setContextMenu(opts.contextMenu);
+      if (opts.onToggle) comp.onToggle(opts.onToggle);
+      if (opts.onChange) comp.onChange(opts.onChange);
+      if (opts.listen) comp.listen();
+      if (opts.showIf) comp.showIf(opts.showIf);
+      this.contentEl.appendChild(comp.element);
+      this.children.push(comp);
+      return comp;
+    }
+
+    const label = property ? (property.charAt(0).toUpperCase() + property.slice(1)) : '';
+    const comp = new Switch(
+      label,
+      targetOrOptions,
+      property!,
+      options || {},
+      this.bindingEngine,
+      this.presetManager,
+      this.soundEngine
+    );
+    this.contentEl.appendChild(comp.element);
+    this.children.push(comp);
+    return comp;
+  }
+
+  public createSwitch(targetOrOptions: any, property?: string, options?: SwitchOptions): Switch {
+    return this.addSwitch(targetOrOptions, property, options);
+  }
+
+  public addButtonGroup(buttons: ButtonGroupItem[]): ButtonGroup {
+    const comp = new ButtonGroup(buttons, this.soundEngine);
+    this.contentEl.appendChild(comp.element);
+    this.children.push(comp);
+    return comp;
+  }
+
+  public createButtonGroup(buttons: ButtonGroupItem[]): ButtonGroup {
+    return this.addButtonGroup(buttons);
+  }
+
+  public addText(targetOrOptions: any, property?: string, options?: TextInputOptions): TextInput {
+    if (
+      typeof targetOrOptions === 'object' &&
+      targetOrOptions !== null &&
+      property === undefined &&
+      'object' in targetOrOptions &&
+      'property' in targetOrOptions
+    ) {
+      const opts = targetOrOptions;
+      const label = opts.label || (opts.property.charAt(0).toUpperCase() + opts.property.slice(1));
+      const comp = new TextInput(
+        label,
+        opts.object,
+        opts.property,
+        opts,
+        this.bindingEngine,
+        this.presetManager,
+        this.soundEngine
+      );
+      if (opts.tooltip) comp.setTooltip(opts.tooltip);
+      if (opts.contextMenu) comp.setContextMenu(opts.contextMenu);
+      if (opts.onChange) comp.onChange(opts.onChange);
+      if (opts.listen) comp.listen();
+      if (opts.showIf) comp.showIf(opts.showIf);
+      this.contentEl.appendChild(comp.element);
+      this.children.push(comp);
+      return comp;
+    }
+
+    const label = property ? (property.charAt(0).toUpperCase() + property.slice(1)) : '';
+    const comp = new TextInput(
+      label,
+      targetOrOptions,
+      property!,
+      options || {},
+      this.bindingEngine,
+      this.presetManager,
+      this.soundEngine
+    );
+    this.contentEl.appendChild(comp.element);
+    this.children.push(comp);
+    return comp;
+  }
+
+  public createText(targetOrOptions: any, property?: string, options?: TextInputOptions): TextInput {
+    return this.addText(targetOrOptions, property, options);
+  }
+
+  public addInput(targetOrOptions: any, property?: string, options?: TextInputOptions): TextInput {
+    return this.addText(targetOrOptions, property, options);
+  }
+
+  public createInput(targetOrOptions: any, property?: string, options?: TextInputOptions): TextInput {
+    return this.addText(targetOrOptions, property, options);
+  }
+
+  public addProgress(targetOrOptions: any, property?: string, options?: ProgressOptions): Progress {
+    if (
+      typeof targetOrOptions === 'object' &&
+      targetOrOptions !== null &&
+      property === undefined &&
+      'object' in targetOrOptions &&
+      'property' in targetOrOptions
+    ) {
+      const opts = targetOrOptions;
+      const label = opts.label || (opts.property.charAt(0).toUpperCase() + opts.property.slice(1));
+      const comp = new Progress(
+        label,
+        opts.object,
+        opts.property,
+        opts,
+        this.bindingEngine
+      );
+      if (opts.tooltip) comp.setTooltip(opts.tooltip);
+      if (opts.listen) comp.listen();
+      if (opts.showIf) comp.showIf(opts.showIf);
+      this.contentEl.appendChild(comp.element);
+      this.children.push(comp);
+      return comp;
+    }
+
+    const label = property ? (property.charAt(0).toUpperCase() + property.slice(1)) : '';
+    const comp = new Progress(
+      label,
+      targetOrOptions,
+      property!,
+      options || {},
+      this.bindingEngine
+    );
+    this.contentEl.appendChild(comp.element);
+    this.children.push(comp);
+    return comp;
+  }
+
+  public createProgress(targetOrOptions: any, property?: string, options?: ProgressOptions): Progress {
+    return this.addProgress(targetOrOptions, property, options);
+  }
+
+  public addSeparator(titleOrOptions?: string | SeparatorOptions, dashed: boolean = false): Separator {
+    let title: string | undefined;
+    let isDashed = dashed;
+    if (typeof titleOrOptions === 'object' && titleOrOptions !== null) {
+      title = titleOrOptions.title;
+      if (titleOrOptions.dashed !== undefined) isDashed = titleOrOptions.dashed;
+    } else {
+      title = titleOrOptions;
+    }
+    const comp = new Separator(title, isDashed);
+    this.contentEl.appendChild(comp.element);
+    this.children.push(comp);
+    return comp;
+  }
+
+  public createSeparator(titleOrOptions?: string | SeparatorOptions, dashed: boolean = false): Separator {
+    return this.addSeparator(titleOrOptions, dashed);
+  }
+
   public addRow(): Row {
     const row = new Row(this.bindingEngine, this.presetManager, this.soundEngine);
     this.contentEl.appendChild(row.element);
@@ -790,6 +977,47 @@ export abstract class ContainerHelper {
       case 'status': {
         const stat = this.addStatus(options.object, options.property!, options.status, options.badge, options.detail);
         comp = stat;
+        break;
+      }
+      case 'switch': {
+        const sw = this.addSwitch(options.object, options.property!, {
+          onLabel: options.onLabel,
+          offLabel: options.offLabel,
+          disabled: options.disabled,
+          tooltip: options.tooltip
+        });
+        comp = sw;
+        break;
+      }
+      case 'buttonGroup': {
+        comp = this.addButtonGroup(options.buttons || []);
+        break;
+      }
+      case 'text': {
+        const textComp = this.addText(options.object, options.property!, {
+          placeholder: options.placeholder,
+          maxLength: options.maxLength,
+          readOnly: options.readOnly,
+          clearable: options.clearable,
+          disabled: options.disabled,
+          tooltip: options.tooltip
+        });
+        comp = textComp;
+        break;
+      }
+      case 'progress': {
+        const prog = this.addProgress(options.object, options.property!, {
+          min: options.min,
+          max: options.max,
+          color: options.color,
+          showValue: options.showValue,
+          tooltip: options.tooltip
+        });
+        comp = prog;
+        break;
+      }
+      case 'separator': {
+        comp = this.addSeparator(options.title || options.label);
         break;
       }
       case 'section':

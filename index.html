@@ -144,6 +144,9 @@
 
     // Application state
     const appState = {
+      simTitle: 'Quantum Matrix',
+      neonGlow: true,
+      energyCore: 75,
       theme: 'dark',
       soundPack: 'synth',
       engineStatus: 'online',
@@ -322,10 +325,24 @@
       // Tab 1: Visuals
       const visualsTab = ui.addTab('Visuals');
 
+      visualsTab.addText(appState, 'simTitle', { clearable: true })
+        .setLabel('Scene Title')
+        .setTooltip('Custom scene label with ✕ clear button');
+
+      visualsTab.addSwitch(appState, 'neonGlow', { onLabel: 'ON', offLabel: 'OFF' })
+        .setLabel('Neon Glow')
+        .setTooltip('Cyberpunk neon bloom glow switch');
+
       visualsTab.addColor(appState, 'primaryColor')
         .setLabel('Color')
-        .setTooltip('Accent color with quick swatches and EyeDropper')
+        .setTooltip('Editable HEX input + EyeDropper screen picker')
         .setSwatches(['#6366f1', '#00ff66', '#00f0ff', '#ff71ce', '#7aa2f7', '#f43f5e', '#f59e0b', '#10b981']);
+
+      visualsTab.addProgress(appState, 'energyCore', { min: 0, max: 100, color: '#38bdf8' })
+        .setLabel('Core Power')
+        .setTooltip('Live glowing energy meter');
+
+      visualsTab.addSeparator('Rendering Geometry');
 
       visualsTab.addCheckbox(appState, 'showConnections')
         .setLabel('Render Mesh')
@@ -342,6 +359,8 @@
         .setMax(250)
         .setStep(5)
         .setTooltip('Maximum distance before mesh links disconnect');
+
+      visualsTab.addSeparator('Theme & Acoustics');
 
       // Theme selector in Visuals
       visualsTab.addSelect(appState, 'theme', [
@@ -365,6 +384,42 @@
 
       // Tab 2: Physics
       const physicsTab = ui.addTab('Physics');
+
+      // Inline compact Button Group
+      physicsTab.addButtonGroup([
+        {
+          label: 'Burst +50',
+          primary: true,
+          tooltip: 'Inject 50 particle nodes',
+          onClick: () => {
+            appState.particleCount = Math.min(250, appState.particleCount + 50);
+            updateParticleCount();
+            ui.notify('Burst injected +50 nodes!', 'info');
+          }
+        },
+        {
+          label: 'Invert Pull',
+          tooltip: 'Reverse gravity polarity',
+          onClick: () => {
+            appState.gravityPull = -appState.gravityPull;
+            ui.notify('Gravitational field inverted!', 'warning');
+          }
+        },
+        {
+          label: 'Reset',
+          danger: true,
+          tooltip: 'Reset physics to baseline',
+          onClick: () => {
+            appState.particleCount = 90;
+            appState.gravityPull = 0.05;
+            appState.speed = 1.2;
+            updateParticleCount();
+            ui.notify('Physics reset to baseline (90 nodes)', 'info');
+          }
+        }
+      ]);
+
+      physicsTab.addSeparator('Simulation Parameters');
 
       physicsTab.addSlider(appState, 'particleCount')
         .setLabel('Count')

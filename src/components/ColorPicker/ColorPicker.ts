@@ -6,7 +6,7 @@ import { SoundEngine } from '../../core/SoundEngine';
 export class ColorPicker extends BaseComponent<string> {
   private wrapperEl: HTMLElement;
   private previewEl: HTMLElement;
-  private hexTextEl: HTMLElement;
+  private hexInputEl: HTMLInputElement;
   private nativeColorInput: HTMLInputElement;
   private eyeDropperBtn?: HTMLButtonElement;
   private swatchesContainer?: HTMLElement;
@@ -32,15 +32,18 @@ export class ColorPicker extends BaseComponent<string> {
     this.previewEl.className = 'relly-color-preview';
     this.previewEl.title = 'Click to open color palette';
 
-    this.hexTextEl = document.createElement('span');
-    this.hexTextEl.className = 'relly-color-text';
+    this.hexInputEl = document.createElement('input');
+    this.hexInputEl.type = 'text';
+    this.hexInputEl.className = 'relly-color-text relly-color-input';
+    this.hexInputEl.spellcheck = false;
+    this.hexInputEl.maxLength = 9;
 
     this.nativeColorInput = document.createElement('input');
     this.nativeColorInput.type = 'color';
     this.nativeColorInput.className = 'relly-color-native';
 
     this.wrapperEl.appendChild(this.previewEl);
-    this.wrapperEl.appendChild(this.hexTextEl);
+    this.wrapperEl.appendChild(this.hexInputEl);
     this.wrapperEl.appendChild(this.nativeColorInput);
 
     // EyeDropper API (Pick color from screen)
@@ -74,8 +77,27 @@ export class ColorPicker extends BaseComponent<string> {
       this.nativeColorInput.click();
     });
 
-    this.hexTextEl.addEventListener('click', () => {
-      this.nativeColorInput.click();
+    this.hexInputEl.addEventListener('input', () => {
+      let val = this.hexInputEl.value.trim();
+      if (!val.startsWith('#') && /^[0-9a-fA-F]{3,8}$/.test(val)) {
+        val = '#' + val;
+      }
+      if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(val)) {
+        this.setValue(val);
+      }
+    });
+
+    this.hexInputEl.addEventListener('change', () => {
+      let val = this.hexInputEl.value.trim();
+      if (!val.startsWith('#') && /^[0-9a-fA-F]{3,8}$/.test(val)) {
+        val = '#' + val;
+      }
+      if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(val)) {
+        this.soundEngine?.playClick();
+        this.setValue(val);
+      } else {
+        this.update();
+      }
     });
 
     this.nativeColorInput.addEventListener('input', () => {
@@ -125,10 +147,12 @@ export class ColorPicker extends BaseComponent<string> {
   }
 
   public update(): this {
-    if (!this.previewEl || !this.hexTextEl) return this;
+    if (!this.previewEl || !this.hexInputEl) return this;
     const color = String(this.getValue() || '#000000');
     this.previewEl.style.backgroundColor = color;
-    this.hexTextEl.textContent = color.toUpperCase();
+    if (document.activeElement !== this.hexInputEl) {
+      this.hexInputEl.value = color.toUpperCase();
+    }
     if (color.startsWith('#') && (color.length === 7 || color.length === 4)) {
       this.nativeColorInput.value =
         color.length === 4

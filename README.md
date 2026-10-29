@@ -5,9 +5,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-0-success.svg)](package.json)
-[![Tests Passing](https://img.shields.io/badge/tests-67%2F67%20passed-success.svg)](tests/)
+[![Tests Passing](https://img.shields.io/badge/tests-81%2F81%20passed-success.svg)](tests/)
 [![TypeScript Ready](https://img.shields.io/badge/TypeScript-5.7-blue.svg)](tsconfig.json)
-[![Bundle Size](https://img.shields.io/badge/bundle-22KB%20gzip-purple.svg)](dist/)
+[![Bundle Size](https://img.shields.io/badge/bundle-24KB%20gzip-purple.svg)](dist/)
 
 ---
 
@@ -19,12 +19,17 @@
 - 📈 **Next-Gen Telemetry HUD Graph** — Canvas time-series with smooth cubic Bezier curves, glowing gradients, multi-series support (`addSeries`), live pulse dot, hover crosshair inspector, click-to-pause inspection, and continuous timeline scrolling without freezing.
 - 🎚️ **Rich Component Suite**:
   - `Slider` — Numeric slider with virtual jog-dial scrubbing (`Shift` ×10 / `Alt` ×0.1 modifiers) and direct text editing.
+  - `Switch` — Cyberpunk / iOS animated sliding pill toggle with optional on/off labels.
+  - `ButtonGroup` — Compact horizontal action button group in a single row.
+  - `TextInput` — Text string input with optional clear button, placeholder, and max length.
+  - `Progress` — Animated glowing telemetry progress bar / meter.
+  - `Separator` — Clean divider line with optional uppercase centered title.
   - `Point2D` & `Point3D / Vector3` — 2D and 3D vectors with color-coded RGB axes (X — red, Y — green, Z — blue) and drag scrubbing.
   - `RangeSlider` — Dual-handle interval slider `[min, max]` with draggable range bar and dual inputs.
   - `Segmented` — Fast single-click mode switcher with an animated sliding pill indicator.
-  - `ColorPicker` — Color preview with quick swatches palette and native screen EyeDropper API integration.
-  - `Checkbox`, `Button`, `Select`, `DynamicLabel`.
+  - `ColorPicker` — Color preview with editable HEX text input, quick swatches, and native EyeDropper API.
   - `StatusIndicator` — Live pulsing LED status indicator with badge (`online`, `busy`, `offline`, `info`, `ready`).
+  - `Checkbox`, `Button`, `Select`, `DynamicLabel`.
 - 🎨 **8 Designer Themes** — `dark`, `light`, `tokyo-night`, `matrix`, `synthwave`, `cyberpunk`, `nord`, `dracula`, plus custom theme object support.
 - 🔊 **Web Audio Sound FX (4 Sound Packs)** — Synthetic interface micro-sounds without external audio assets (`synth`, `mechanical`, `bubble`, `arcade`) with volume control.
 - 💾 **Session AutoSave (`autoSave: true`)** — Automatic debounced persistence and restoration of component values, panel layout, collapsed state, and theme to `localStorage`.
@@ -118,11 +123,16 @@ ui.addGraph(state, 'fps')
 | Method | Description | Supported Data Types |
 |---|---|---|
 | `ui.addSlider(obj, prop, opts)` | Slider with mouse jog-dial scrubbing | `number` |
+| `ui.addSwitch(obj, prop, opts)` | Cyberpunk / iOS animated sliding pill toggle | `boolean` |
+| `ui.addButtonGroup(buttons)` | Multi-button action group in a single row | Array of button definitions |
+| `ui.addText(obj, prop, opts)` | String input with clear button & validation | `string` |
+| `ui.addProgress(obj, prop, opts)`| Animated glowing telemetry progress meter | `number` |
+| `ui.addSeparator(title?, dashed?)`| Clean divider line with optional title | None / Layout |
 | `ui.addPoint2D(obj, prop, opts)` | 2D vector with X and Y drag scrubbing | `{x, y}` or `[x, y]` |
 | `ui.addPoint3D(obj, prop, opts)` | 3D vector with color-coded RGB axes | `{x, y, z}` or `[x, y, z]` |
 | `ui.addRange(obj, prop, opts)` | Dual-handle range slider `[min, max]` | `[min, max]` or `{min, max}` |
 | `ui.addSegmented(obj, prop, opts)`| Segmented button group switcher | `string`, `number` |
-| `ui.addColor(obj, prop)` | Color picker with swatches & EyeDropper | `string` (HEX/RGB) |
+| `ui.addColor(obj, prop)` | Color picker with editable HEX, swatches & EyeDropper | `string` (HEX/RGB) |
 | `ui.addCheckbox(obj, prop)` | Boolean toggle checkbox | `boolean` |
 | `ui.addSelect(obj, prop, options)`| Dropdown selection menu | Array or Record |
 | `ui.addGraph(obj, prop)` | Time-series telemetry canvas with Bezier curve | `number` |

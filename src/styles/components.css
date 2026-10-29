@@ -352,6 +352,25 @@
   font-family: monospace;
   font-size: 11px;
   color: var(--relly-fg);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--relly-radius);
+  padding: 2px 4px;
+  width: 72px;
+  text-transform: uppercase;
+  transition: all 0.15s ease;
+}
+
+.relly-color-text:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--relly-input-bg);
+}
+
+.relly-color-text:focus {
+  outline: none;
+  border-color: var(--relly-accent);
+  background: var(--relly-input-bg);
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
 }
 
 .relly-color-swatches {
@@ -896,4 +915,244 @@
   color: var(--relly-fg);
   opacity: 0.7;
   font-family: monospace;
+}
+
+/* 7. Switch (Neon / iOS Sliding Pill) */
+.relly-switch-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.relly-switch-native {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.relly-switch-track {
+  position: relative;
+  width: 34px;
+  height: 18px;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-block;
+}
+
+.relly-switch-wrap:hover .relly-switch-track {
+  background-color: rgba(255, 255, 255, 0.24);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.relly-switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s;
+}
+
+.relly-switch-track--checked {
+  background-color: var(--relly-accent);
+  border-color: var(--relly-accent);
+  box-shadow: 0 0 10px var(--relly-accent);
+}
+
+.relly-switch-track--checked .relly-switch-thumb {
+  transform: translateX(16px);
+  background-color: #ffffff;
+}
+
+.relly-switch-text {
+  font-size: 10px;
+  font-family: monospace;
+  font-weight: 700;
+  color: var(--relly-fg);
+  opacity: 0.8;
+}
+
+/* 8. Button Group */
+.relly-button-group-row {
+  padding: 3px 0;
+}
+
+.relly-button-group {
+  display: flex;
+  width: 100%;
+  gap: 4px;
+}
+
+.relly-btn--group {
+  flex: 1;
+  min-width: 0;
+  padding: 5px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  border-radius: var(--relly-radius);
+  background-color: var(--relly-input-bg);
+  color: var(--relly-fg);
+  border: 1px solid var(--relly-border);
+  cursor: pointer;
+  transition: all 0.16s var(--relly-ease);
+}
+
+.relly-btn--group:hover {
+  background-color: var(--relly-input-hover);
+  border-color: var(--relly-accent);
+  transform: translateY(-1px);
+}
+
+.relly-btn--group:active {
+  transform: translateY(1px);
+}
+
+.relly-btn--group.relly-btn--primary {
+  background-color: var(--relly-accent);
+  color: #0f172a;
+  border-color: var(--relly-accent);
+}
+
+.relly-btn--group.relly-btn--primary:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 0 10px var(--relly-accent);
+}
+
+.relly-btn--group.relly-btn--danger {
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.relly-btn--group.relly-btn--danger:hover {
+  background-color: rgba(239, 68, 68, 0.18);
+  border-color: #ef4444;
+}
+
+/* 9. Text Input */
+.relly-text-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.relly-text-input {
+  width: 100%;
+  background-color: var(--relly-input-bg);
+  border: 1px solid var(--relly-border);
+  border-radius: var(--relly-radius);
+  color: var(--relly-fg);
+  font-size: 11px;
+  padding: 4px 24px 4px 8px;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.relly-text-input:hover {
+  background-color: var(--relly-input-hover);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.relly-text-input:focus {
+  border-color: var(--relly-accent);
+  background-color: var(--relly-input-hover);
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+}
+
+.relly-text-clear {
+  position: absolute;
+  right: 6px;
+  background: none;
+  border: none;
+  color: var(--relly-fg);
+  opacity: 0.45;
+  cursor: pointer;
+  font-size: 10px;
+  padding: 2px 4px;
+  line-height: 1;
+  transition: opacity 0.15s;
+}
+
+.relly-text-clear:hover {
+  opacity: 1;
+}
+
+/* 10. Progress Bar / Meter */
+.relly-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.relly-progress-track {
+  flex: 1;
+  height: 6px;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  position: relative;
+}
+
+.relly-progress-bar {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, var(--relly-accent), #38bdf8);
+  box-shadow: 0 0 8px var(--relly-accent);
+  transition: width 0.18s ease-out;
+  width: 0%;
+}
+
+.relly-progress-text {
+  font-size: 10px;
+  font-family: monospace;
+  font-weight: 700;
+  color: var(--relly-fg);
+  opacity: 0.8;
+  min-width: 32px;
+  text-align: right;
+}
+
+/* 11. Separator */
+.relly-separator-row {
+  padding: 6px 0;
+}
+
+.relly-separator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.relly-separator-line {
+  flex: 1;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.relly-separator--dashed .relly-separator-line {
+  background: none;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+  height: 0;
+}
+
+.relly-separator-title {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--relly-fg);
+  opacity: 0.55;
+  white-space: nowrap;
 }

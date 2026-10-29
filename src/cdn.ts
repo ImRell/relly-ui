@@ -12,6 +12,11 @@ import { Point3D } from './components/Point3D/Point3D';
 import { RangeSlider } from './components/Range/RangeSlider';
 import { Segmented } from './components/Segmented/Segmented';
 import { StatusIndicator } from './components/Status/StatusIndicator';
+import { Switch } from './components/Switch/Switch';
+import { ButtonGroup } from './components/ButtonGroup/ButtonGroup';
+import { TextInput } from './components/TextInput/TextInput';
+import { Progress } from './components/Progress/Progress';
+import { Separator } from './components/Separator/Separator';
 import { Section } from './components/Section/Section';
 import { Row } from './components/Row/Row';
 import { Tab } from './components/Tabs/Tab';
@@ -55,6 +60,11 @@ Object.assign(RellyUI, {
   RangeSlider,
   Segmented,
   StatusIndicator,
+  Switch,
+  ButtonGroup,
+  TextInput,
+  Progress,
+  Separator,
   Section,
   Row,
   Tab,

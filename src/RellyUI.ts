@@ -17,7 +17,7 @@ import { RellyUIOptions, ThemeInput, SchemaDefinition, SoundPack, ToastType } fr
 import { injectStyles } from './styles/injector';
 
 export class RellyUI extends ContainerHelper {
-  public static version: string = '1.0.2';
+  public static version: string = '1.1.0';
 
   private hostEl?: HTMLElement;
   private shadowRoot: ShadowRoot | null = null;

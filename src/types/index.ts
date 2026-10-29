@@ -194,11 +194,16 @@ export interface IBaseComponent<T = any> {
 
 export type ComponentType =
   | 'checkbox'
+  | 'switch'
   | 'slider'
   | 'button'
+  | 'buttonGroup'
   | 'select'
+  | 'text'
   | 'dynamicLabel'
   | 'graph'
+  | 'progress'
+  | 'separator'
   | 'color'
   | 'point2d'
   | 'point3d'
@@ -237,6 +242,45 @@ export type RangeVal = [number, number] | { min: number; max: number };
 
 export interface SegmentedOptions {
   options: string[] | number[] | Record<string, any>;
+}
+
+export interface SwitchOptions {
+  onLabel?: string;
+  offLabel?: string;
+  disabled?: boolean;
+  tooltip?: string;
+}
+
+export interface ButtonGroupItem {
+  label: string;
+  onClick: (btn: HTMLButtonElement) => void;
+  danger?: boolean;
+  primary?: boolean;
+  disabled?: boolean;
+  tooltip?: string;
+}
+
+export interface TextInputOptions {
+  placeholder?: string;
+  maxLength?: number;
+  readOnly?: boolean;
+  clearable?: boolean;
+  disabled?: boolean;
+  tooltip?: string;
+}
+
+export interface ProgressOptions {
+  min?: number;
+  max?: number;
+  color?: string;
+  showValue?: boolean;
+  format?: (val: number, pct: number) => string;
+  tooltip?: string;
+}
+
+export interface SeparatorOptions {
+  title?: string;
+  dashed?: boolean;
 }
 
 export type StatusType = 'online' | 'busy' | 'offline' | 'info' | 'ready';
@@ -278,6 +322,19 @@ export interface ComponentFactoryOptions {
   options?: string[] | number[] | Record<string, any>;
   // Button options
   onClick?: OnClickCallback;
+  buttons?: ButtonGroupItem[];
+  // Text options
+  placeholder?: string;
+  maxLength?: number;
+  readOnly?: boolean;
+  clearable?: boolean;
+  // Progress options
+  showValue?: boolean;
+  // Separator options
+  title?: string;
+  // Switch options
+  onLabel?: string;
+  offLabel?: string;
   // Callbacks
   onChange?: OnChangeCallback;
   onToggle?: OnChangeCallback;

@@ -200,7 +200,15 @@ export abstract class ContainerHelper {
     ) {
       const opts = targetOrOptions;
       const label = opts.label || (opts.property.charAt(0).toUpperCase() + opts.property.slice(1));
-      const comp = new Select(label, opts.object, opts.property, opts.options, this.bindingEngine, this.presetManager);
+      const comp = new Select(
+        label,
+        opts.object,
+        opts.property,
+        opts.options,
+        this.bindingEngine,
+        this.presetManager,
+        this.soundEngine
+      );
       if (opts.tooltip) comp.setTooltip(opts.tooltip);
       if (opts.onChange) comp.onChange(opts.onChange);
       if (opts.listen) comp.listen();
@@ -217,7 +225,8 @@ export abstract class ContainerHelper {
       property!,
       options,
       this.bindingEngine,
-      this.presetManager
+      this.presetManager,
+      this.soundEngine
     );
     this.contentEl.appendChild(comp.element);
     this.children.push(comp);

@@ -1,10 +1,12 @@
 import { BaseComponent } from '../../core/BaseComponent';
 import { BindingEngine } from '../../core/BindingEngine';
 import { PresetManager } from '../../core/PresetManager';
+import { SoundEngine } from '../../core/SoundEngine';
 
 export class Select extends BaseComponent<any> {
   private selectEl: HTMLSelectElement;
   private optionsMap: Map<string, any> = new Map();
+  private soundEngine?: SoundEngine;
 
   constructor(
     label: string,
@@ -12,9 +14,11 @@ export class Select extends BaseComponent<any> {
     property: string,
     options?: any[] | Record<string, any>,
     bindingEngine?: BindingEngine,
-    presetManager?: PresetManager
+    presetManager?: PresetManager,
+    soundEngine?: SoundEngine
   ) {
     super(label, targetObject, property, bindingEngine, presetManager);
+    this.soundEngine = soundEngine;
 
     this.selectEl = document.createElement('select');
     this.selectEl.className = 'relly-select-input';
@@ -29,10 +33,16 @@ export class Select extends BaseComponent<any> {
       const actualValue = this.optionsMap.has(selectedKey)
         ? this.optionsMap.get(selectedKey)
         : selectedKey;
+      this.soundEngine?.playSelect();
       this.setValue(actualValue);
     });
 
     this.update();
+  }
+
+  public setSoundEngine(soundEngine: SoundEngine): this {
+    this.soundEngine = soundEngine;
+    return this;
   }
 
   public setOptions(options: any[] | Record<string, any>): this {

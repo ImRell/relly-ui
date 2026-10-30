@@ -5,6 +5,7 @@ export class SoundEngine {
   private enabled: boolean = true;
   private volume: number = 1.0;
   private soundPack: SoundPack = 'synth';
+  private lastTickTime: number = 0;
 
   constructor(enabled: boolean = true, soundPack: SoundPack = 'synth') {
     this.enabled = enabled;
@@ -318,35 +319,171 @@ export class SoundEngine {
 
     try {
       const now = ctx.currentTime;
+      if (now - this.lastTickTime < 0.045) return;
+      this.lastTickTime = now;
+
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
       if (this.soundPack === 'mechanical') {
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(3200, now);
-        osc.frequency.exponentialRampToValueAtTime(800, now + 0.006);
-        gain.gain.setValueAtTime(0.03 * this.volume, now);
+        osc.frequency.setValueAtTime(1400, now);
+        osc.frequency.exponentialRampToValueAtTime(420, now + 0.007);
+        gain.gain.setValueAtTime(0.018 * this.volume, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.007);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.008);
       } else if (this.soundPack === 'bubble') {
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(850, now);
-        osc.frequency.exponentialRampToValueAtTime(1350, now + 0.01);
-        gain.gain.setValueAtTime(0.02 * this.volume, now);
+        osc.frequency.setValueAtTime(520, now);
+        osc.frequency.exponentialRampToValueAtTime(780, now + 0.009);
+        gain.gain.setValueAtTime(0.014 * this.volume, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.009);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.01);
       } else if (this.soundPack === 'arcade') {
         osc.type = 'square';
-        osc.frequency.setValueAtTime(1174.66, now);
-        gain.gain.setValueAtTime(0.018 * this.volume, now);
+        osc.frequency.setValueAtTime(783.99, now);
+        gain.gain.setValueAtTime(0.012 * this.volume, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.007);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.008);
+      } else {
+        // Synth: warm subtle tactile click
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(480, now);
+        osc.frequency.exponentialRampToValueAtTime(240, now + 0.007);
+        gain.gain.setValueAtTime(0.012 * this.volume, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.007);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.008);
+      }
+    } catch {
+      // Ignore
+    }
+  }
+
+  public playSelect(): void {
+    const ctx = this.initCtx();
+    if (!ctx) return;
+
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      if (this.soundPack === 'mechanical') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(2000, now);
+        osc.frequency.exponentialRampToValueAtTime(650, now + 0.012);
+        gain.gain.setValueAtTime(0.045 * this.volume, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.012);
+      } else if (this.soundPack === 'bubble') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.exponentialRampToValueAtTime(920, now + 0.02);
+        gain.gain.setValueAtTime(0.04 * this.volume, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.02);
+      } else if (this.soundPack === 'arcade') {
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(880, now);
+        gain.gain.setValueAtTime(0.025 * this.volume, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.016);
       } else {
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(1800, now);
-        osc.frequency.exponentialRampToValueAtTime(800, now + 0.008);
-        gain.gain.setValueAtTime(0.015 * this.volume, now);
+        osc.frequency.setValueAtTime(540, now);
+        osc.frequency.exponentialRampToValueAtTime(720, now + 0.018);
+        gain.gain.setValueAtTime(0.035 * this.volume, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.018);
       }
 
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.009);
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start(now);
-      osc.stop(now + 0.01);
+      osc.stop(now + 0.022);
+    } catch {
+      // Ignore
+    }
+  }
+
+  public playPanelOpen(): void {
+    const ctx = this.initCtx();
+    if (!ctx) return;
+
+    try {
+      const now = ctx.currentTime;
+
+      if (this.soundPack === 'arcade') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.setValueAtTime(659.25, now + 0.028);
+        osc.frequency.setValueAtTime(880, now + 0.056);
+        gain.gain.setValueAtTime(0.025 * this.volume, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.09);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.095);
+      } else if (this.soundPack === 'bubble') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(320, now);
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.06);
+        gain.gain.setValueAtTime(0.04 * this.volume, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.065);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.07);
+      } else if (this.soundPack === 'mechanical') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(850, now);
+        osc.frequency.exponentialRampToValueAtTime(320, now + 0.04);
+        gain.gain.setValueAtTime(0.05 * this.volume, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.05);
+      } else {
+        // Synth: Futuristic sleek uncloak chime / dual-tone sweep
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(300, now);
+        osc1.frequency.exponentialRampToValueAtTime(640, now + 0.06);
+        gain1.gain.setValueAtTime(0.035 * this.volume, now);
+        gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.065);
+        osc1.connect(gain1);
+        gain1.connect(ctx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.07);
+
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(600, now + 0.015);
+        osc2.frequency.exponentialRampToValueAtTime(980, now + 0.075);
+        gain2.gain.setValueAtTime(0.025 * this.volume, now + 0.015);
+        gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start(now + 0.015);
+        osc2.stop(now + 0.085);
+      }
     } catch {
       // Ignore
     }

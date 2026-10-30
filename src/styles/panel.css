@@ -78,8 +78,35 @@
   50% { opacity: 0.5; transform: scale(0.85); }
 }
 
-.relly-panel * {
+/* Universal Reset & Outline Elimination across all RellyUI elements */
+.relly-panel,
+.relly-panel *,
+.relly-panel *::before,
+.relly-panel *::after,
+.relly-host,
+.relly-host *,
+.relly-modal-backdrop,
+.relly-modal-backdrop *,
+.relly-context-menu,
+.relly-context-menu *,
+.relly-toast-container,
+.relly-toast-container * {
   box-sizing: border-box;
+  outline: none !important;
+}
+
+.relly-panel *:focus,
+.relly-panel *:focus-visible,
+.relly-panel *:focus-within,
+.relly-host *:focus,
+.relly-host *:focus-visible,
+.relly-modal-backdrop *:focus,
+.relly-modal-backdrop *:focus-visible,
+.relly-context-menu *:focus,
+.relly-context-menu *:focus-visible,
+.relly-toast-container *:focus,
+.relly-toast-container *:focus-visible {
+  outline: none !important;
 }
 
 /* Complete Scrollbar Elimination across entire UI */
@@ -165,6 +192,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  outline: none;
   transition:
     opacity 0.15s,
     background-color 0.15s,
@@ -179,6 +207,12 @@
 
 .relly-header-btn:active {
   transform: scale(0.92);
+}
+
+.relly-header-btn.relly-close-btn:hover {
+  background-color: rgba(255, 75, 75, 0.2);
+  color: #ff5555;
+  opacity: 1;
 }
 
 /* Resize Handle */
@@ -247,6 +281,7 @@
   opacity: 0.5;
   font-size: 10px;
   padding: 0 4px;
+  outline: none;
   transition: opacity 0.15s;
 }
 
@@ -284,6 +319,7 @@
   font-size: 11px;
   cursor: pointer;
   white-space: nowrap;
+  outline: none;
   transition: all 0.2s var(--relly-ease);
 }
 
@@ -545,6 +581,7 @@
   cursor: pointer;
   padding: 0 2px;
   font-size: 11px;
+  outline: none;
 }
 
 .relly-toast-close:hover {
@@ -584,6 +621,7 @@
   border-radius: 3px;
   cursor: pointer;
   text-align: left;
+  outline: none;
   transition: background-color 0.12s var(--relly-ease), color 0.12s;
 }
 

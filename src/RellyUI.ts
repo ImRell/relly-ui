@@ -17,14 +17,14 @@ import { RellyUIOptions, ThemeInput, SchemaDefinition, SoundPack, ToastType } fr
 import { injectStyles } from './styles/injector';
 
 export class RellyUI extends ContainerHelper {
-  public static version: string = '1.1.0';
+  public static version: string = '1.1.1';
 
   private hostEl?: HTMLElement;
   private shadowRoot: ShadowRoot | null = null;
   private panelEl: HTMLElement;
   private headerEl: HTMLElement;
   private titleEl: HTMLElement;
-  private collapseBtn: HTMLButtonElement;
+  private closeBtn: HTMLButtonElement;
   private copyToastEl: HTMLElement;
 
   private themeManager: ThemeManager;
@@ -128,12 +128,18 @@ export class RellyUI extends ContainerHelper {
     miniHudBtn.textContent = '⤢';
     actions.appendChild(miniHudBtn);
 
-    // Collapse button
-    const collapseBtn = document.createElement('button');
-    collapseBtn.className = 'relly-header-btn';
-    collapseBtn.title = 'Collapse/Expand';
-    collapseBtn.textContent = '_';
-    actions.appendChild(collapseBtn);
+    // Close button (X)
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'relly-header-btn relly-close-btn';
+    closeBtn.title = 'Close panel (press Hotkey to reopen)';
+    closeBtn.setAttribute('aria-label', 'Close panel');
+    closeBtn.innerHTML = `
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    `;
+    actions.appendChild(closeBtn);
 
     header.appendChild(titleWrap);
     header.appendChild(actions);
@@ -159,7 +165,7 @@ export class RellyUI extends ContainerHelper {
     this.panelEl = panel;
     this.headerEl = header;
     this.titleEl = title;
-    this.collapseBtn = collapseBtn;
+    this.closeBtn = closeBtn;
     this.copyToastEl = copyToast;
     this.soundEngine = soundEngine;
     this.onResizeBound = () => this.clampToViewport();
@@ -224,11 +230,11 @@ export class RellyUI extends ContainerHelper {
       this.toggleMiniHud();
     });
 
-    // Collapse toggle button
-    this.collapseBtn.addEventListener('click', (e) => {
+    // Close button
+    this.closeBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       this.soundEngine.playClick();
-      this.toggleCollapse();
+      this.hide();
     });
 
     // Copy button
@@ -602,11 +608,9 @@ export class RellyUI extends ContainerHelper {
     this.isPanelCollapsed = collapsed;
     if (this.isPanelCollapsed) {
       this.panelEl.classList.add('relly-collapsed');
-      this.collapseBtn.textContent = '+';
       this.bindingEngine.pause();
     } else {
       this.panelEl.classList.remove('relly-collapsed');
-      this.collapseBtn.textContent = '_';
       this.bindingEngine.resume();
     }
     if (this.autoSave) this.queueAutoSave();
@@ -732,10 +736,14 @@ export class RellyUI extends ContainerHelper {
   }
 
   public show(): this {
+    const wasHidden = this.isPanelHidden;
     this.isPanelHidden = false;
     this.panelEl.classList.remove('relly-hidden');
     if (!this.isPanelCollapsed) {
       this.bindingEngine.resume();
+    }
+    if (wasHidden) {
+      this.soundEngine.playPanelOpen();
     }
     return this;
   }

@@ -17,6 +17,7 @@ export class RangeSlider extends BaseComponent<RangeVal> {
   private max: number = 100;
   private step: number = 1;
   private soundEngine?: SoundEngine;
+  private lastSoundTime: number = 0;
   private formatter: (min: number, max: number) => string = (a, b) =>
     `[${a.toFixed(1)}, ${b.toFixed(1)}]`;
 
@@ -110,13 +111,13 @@ export class RangeSlider extends BaseComponent<RangeVal> {
       if (type === 'min') {
         const nextMin = Math.min(steppedVal, curMax);
         if (nextMin !== curMin) {
-          this.soundEngine?.playTick();
+          this.triggerTick();
           this.setRangeValue(nextMin, curMax);
         }
       } else {
         const nextMax = Math.max(steppedVal, curMin);
         if (nextMax !== curMax) {
-          this.soundEngine?.playTick();
+          this.triggerTick();
           this.setRangeValue(curMin, nextMax);
         }
       }
@@ -159,7 +160,7 @@ export class RangeSlider extends BaseComponent<RangeVal> {
 
       const [curMin, curMax] = this.getCurrentRange();
       if (newMin !== curMin || newMax !== curMax) {
-        this.soundEngine?.playTick();
+        this.triggerTick();
         this.setRangeValue(newMin, newMax);
       }
     };
@@ -190,6 +191,14 @@ export class RangeSlider extends BaseComponent<RangeVal> {
     const stepped = Math.round(val / this.step) * this.step;
     const decimals = (this.step.toString().split('.')[1] || '').length;
     return parseFloat(stepped.toFixed(decimals));
+  }
+
+  private triggerTick(): void {
+    const now = Date.now();
+    if (now - this.lastSoundTime >= 60) {
+      this.lastSoundTime = now;
+      this.soundEngine?.playTick();
+    }
   }
 
   private getCurrentRange(): [number, number] {

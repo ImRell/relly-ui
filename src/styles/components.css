@@ -1,3 +1,20 @@
+/* Universal Outline Elimination across all Components */
+.relly-row,
+.relly-row *,
+.relly-row *::before,
+.relly-row *::after,
+.relly-control,
+.relly-control * {
+  outline: none !important;
+}
+
+.relly-row *:focus,
+.relly-row *:focus-visible,
+.relly-control *:focus,
+.relly-control *:focus-visible {
+  outline: none !important;
+}
+
 /* Base Row */
 .relly-row {
   display: flex;
@@ -111,6 +128,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  outline: none;
   transition:
     background-color 0.18s var(--relly-ease),
     border-color 0.18s var(--relly-ease),
@@ -233,6 +251,7 @@
   font-weight: 500;
   padding: 4px 10px;
   cursor: pointer;
+  outline: none;
   transition:
     background-color 0.15s var(--relly-ease),
     border-color 0.15s,
@@ -324,6 +343,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  outline: none;
   transition:
     opacity 0.15s var(--relly-ease),
     transform 0.1s var(--relly-ease);
@@ -388,6 +408,7 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   cursor: pointer;
   padding: 0;
+  outline: none;
   box-sizing: border-box;
   transition:
     transform 0.12s var(--relly-ease),
@@ -716,6 +737,7 @@
   padding: 2px 4px;
   text-align: right;
   cursor: ew-resize;
+  outline: none;
 }
 
 /* Dual-Handle Range Slider */
@@ -786,6 +808,7 @@
   font-size: 11px;
   padding: 2px 4px;
   text-align: right;
+  outline: none;
 }
 
 /* Segmented Control */
@@ -826,6 +849,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  outline: none;
   z-index: 2;
   transition: color 0.15s var(--relly-ease);
 }
@@ -924,6 +948,7 @@
   gap: 8px;
   cursor: pointer;
   user-select: none;
+  outline: none;
 }
 
 .relly-switch-native {
@@ -932,6 +957,7 @@
   width: 0;
   height: 0;
   pointer-events: none;
+  outline: none;
 }
 
 .relly-switch-track {
@@ -943,6 +969,7 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
   transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-block;
+  outline: none;
 }
 
 .relly-switch-wrap:hover .relly-switch-track {
@@ -1004,6 +1031,7 @@
   color: var(--relly-fg);
   border: 1px solid var(--relly-border);
   cursor: pointer;
+  outline: none;
   transition: all 0.16s var(--relly-ease);
 }
 
@@ -1080,6 +1108,7 @@
   font-size: 10px;
   padding: 2px 4px;
   line-height: 1;
+  outline: none;
   transition: opacity 0.15s;
 }
 

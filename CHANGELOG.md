@@ -6,6 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.1] - 2026-10-30
+
+### Added
+- **Panel Open Audio Feedback**: Added `SoundEngine.playPanelOpen()` with distinct sound signatures across all 4 sound packs (`synth`, `mechanical`, `bubble`, `arcade`), automatically triggered when opening or revealing the panel.
+- **Select Option Audio Feedback**: Added `SoundEngine.playSelect()` providing tactile confirmation clicks whenever a user selects a dropdown option.
+- **Header Close Button (`✕`)**: Replaced previous minimize (`_`) button with a clean `✕` button (`.relly-close-btn`). Panel hides gracefully and reopens at any time using the configured hotkey (e.g. `H`).
+
+### Changed & Fixed
+- **Smoothed Range & Slider Audio**: Eliminated ear-piercing sound spam during rapid scrubbing. Lowered tick frequencies to warm 240–480 Hz tactile dial clicks, reduced gain, added a 45ms audio-level cooldown, and throttled mouse-drag ticks on `RangeSlider` and `Slider` to 60ms intervals.
+- **Universal Outline Elimination**: Stripped default browser focus rings and outlines across all interactive elements (`.relly-btn`, `.relly-btn--group`, `.relly-header-btn`, `.relly-tab-btn`, `.relly-range-input`, `.relly-point3d-input`, selects, and text inputs).
+
+---
+
 ## [1.1.0] - 2026-10-29
 
 ### Added

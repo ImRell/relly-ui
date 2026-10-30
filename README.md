@@ -5,7 +5,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Zero Dependencies](https://img.shields.io/badge/dependencies-0-success.svg)](package.json)
-[![Tests Passing](https://img.shields.io/badge/tests-81%2F81%20passed-success.svg)](tests/)
+[![Tests Passing](https://img.shields.io/badge/tests-89%2F89%20passed-success.svg)](tests/)
 [![TypeScript Ready](https://img.shields.io/badge/TypeScript-5.7-blue.svg)](tsconfig.json)
 [![Bundle Size](https://img.shields.io/badge/bundle-24KB%20gzip-purple.svg)](dist/)
 

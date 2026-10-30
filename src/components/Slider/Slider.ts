@@ -46,8 +46,10 @@ export class Slider extends BaseComponent<number> {
     // Range input change
     this.rangeInput.addEventListener('input', () => {
       const val = parseFloat(this.rangeInput.value);
-      this.triggerSound();
-      this.setValue(val);
+      if (val !== this.getValue()) {
+        this.triggerSound();
+        this.setValue(val);
+      }
     });
 
     // Number input change
@@ -55,8 +57,10 @@ export class Slider extends BaseComponent<number> {
       let val = parseFloat(this.numberInput.value);
       if (isNaN(val)) val = this.min;
       val = Math.max(this.min, Math.min(this.max, val));
-      this.triggerSound();
-      this.setValue(val);
+      if (val !== this.getValue()) {
+        this.triggerSound();
+        this.setValue(val);
+      }
     });
 
     // Virtual Jog-Dial / Drag Scrubbing on number input
@@ -88,8 +92,10 @@ export class Slider extends BaseComponent<number> {
         const invStep = 1 / stepDelta;
         newVal = Math.round(newVal * invStep) / invStep;
         newVal = parseFloat(newVal.toFixed(Math.min(decimals, 4)));
-        this.triggerSound();
-        this.setValue(newVal);
+        if (newVal !== this.getValue()) {
+          this.triggerSound();
+          this.setValue(newVal);
+        }
         ev.preventDefault();
       }
     };
@@ -118,7 +124,7 @@ export class Slider extends BaseComponent<number> {
 
   private triggerSound(): void {
     const now = Date.now();
-    if (now - this.lastSoundTime > 35) {
+    if (now - this.lastSoundTime >= 60) {
       this.lastSoundTime = now;
       this.soundEngine?.playTick();
     }

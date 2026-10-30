@@ -15,6 +15,23 @@
   outline: none !important;
 }
 
+/* Hide native browser spin buttons and center number input values */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none !important;
+  margin: 0 !important;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield !important;
+  text-align: center;
+}
+
+.relly-control input[type="number"],
+.relly-row input[type="number"] {
+  text-align: center;
+}
+
 /* Base Row */
 .relly-row {
   display: flex;
@@ -220,6 +237,7 @@
 
 .relly-slider-number {
   width: 50px;
+  min-width: 50px;
   background: var(--relly-input-bg);
   border: 1px solid var(--relly-border);
   border-radius: 4px;
@@ -227,8 +245,10 @@
   font-family: inherit;
   font-size: 11px;
   padding: 2px 4px;
-  text-align: right;
+  text-align: center;
   outline: none;
+  box-sizing: border-box;
+  cursor: ew-resize;
   transition:
     border-color 0.15s var(--relly-ease),
     background-color 0.15s;
@@ -237,6 +257,7 @@
 .relly-slider-number:focus {
   border-color: var(--relly-accent);
   background: var(--relly-input-hover);
+  cursor: text;
 }
 
 /* Button */
@@ -303,6 +324,8 @@
   padding: 2px 6px;
   border-radius: 4px;
   border: 1px solid rgba(99, 102, 241, 0.2);
+  text-align: center;
+  display: inline-block;
   transition: all 0.2s var(--relly-ease);
 }
 
@@ -377,6 +400,8 @@
   border-radius: var(--relly-radius);
   padding: 2px 4px;
   width: 72px;
+  text-align: center;
+  box-sizing: border-box;
   text-transform: uppercase;
   transition: all 0.15s ease;
 }
@@ -440,6 +465,7 @@
   align-items: center;
   gap: 2px;
   flex: 1;
+  min-width: 0;
 }
 
 .relly-point2d-tag {
@@ -457,14 +483,17 @@
   color: var(--relly-fg);
   font-family: inherit;
   font-size: 11px;
-  padding: 2px 4px;
-  text-align: right;
+  padding: 2px 14px;
+  text-align: center;
+  cursor: ew-resize;
   outline: none;
+  box-sizing: border-box;
   transition: border-color 0.15s var(--relly-ease);
 }
 
 .relly-point2d-input:focus {
   border-color: var(--relly-accent);
+  cursor: text;
 }
 
 /* Graph */
@@ -525,6 +554,8 @@
   padding: 1px 4px;
   border-radius: 3px;
   border: 1px solid rgba(99, 102, 241, 0.2);
+  text-align: center;
+  display: inline-block;
 }
 
 .relly-graph-legend {
@@ -734,10 +765,80 @@
   color: var(--relly-fg);
   font-family: inherit;
   font-size: 11px;
-  padding: 2px 4px;
-  text-align: right;
+  padding: 2px 14px;
+  text-align: center;
   cursor: ew-resize;
   outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s var(--relly-ease);
+}
+
+.relly-point3d-input:focus {
+  border-color: var(--relly-accent);
+  cursor: text;
+}
+
+/* Custom Vector Stepper Controls */
+.relly-vector-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.relly-stepper-arrows {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  bottom: 2px;
+  width: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0.4;
+  pointer-events: auto;
+  transition: opacity 0.15s ease;
+  z-index: 2;
+}
+
+.relly-vector-cell:hover .relly-stepper-arrows,
+.relly-vector-cell:focus-within .relly-stepper-arrows {
+  opacity: 1;
+}
+
+.relly-stepper-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 50%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  color: var(--relly-fg);
+  border-radius: 2px;
+  transition: background-color 0.1s ease, color 0.1s ease;
+  outline: none !important;
+  user-select: none;
+}
+
+.relly-stepper-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--relly-accent);
+}
+
+.relly-stepper-btn:active {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.relly-stepper-btn svg {
+  display: block;
+  pointer-events: none;
 }
 
 /* Dual-Handle Range Slider */
@@ -799,7 +900,8 @@
 }
 
 .relly-range-input {
-  width: 38px;
+  width: 48px;
+  min-width: 48px;
   background: var(--relly-input-bg);
   border: 1px solid var(--relly-border);
   border-radius: 3px;
@@ -807,8 +909,19 @@
   font-family: inherit;
   font-size: 11px;
   padding: 2px 4px;
-  text-align: right;
+  text-align: center;
+  cursor: ew-resize;
   outline: none;
+  box-sizing: border-box;
+  transition:
+    border-color 0.15s var(--relly-ease),
+    background-color 0.15s;
+}
+
+.relly-range-input:focus {
+  border-color: var(--relly-accent);
+  background: var(--relly-input-hover);
+  cursor: text;
 }
 
 /* Segmented Control */
@@ -1149,7 +1262,7 @@
   color: var(--relly-fg);
   opacity: 0.8;
   min-width: 32px;
-  text-align: right;
+  text-align: center;
 }
 
 /* 11. Separator */

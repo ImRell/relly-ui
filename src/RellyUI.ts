@@ -41,6 +41,9 @@ export class RellyUI extends ContainerHelper {
   private isPanelCollapsed: boolean = false;
   private isPanelHidden: boolean = false;
   private isMiniHud: boolean = false;
+  private miniHudAnimTimeout?: any;
+  private collapseAnimTimeout?: any;
+  private onHeaderCancelMoveBound?: (e: MouseEvent) => void;
   private ghostOnIdle: boolean = false;
   private idleOpacity: number = 0.38;
   private onResizeBound: () => void;
@@ -224,10 +227,45 @@ export class RellyUI extends ContainerHelper {
       this.toggleMiniHud();
     });
 
-    // Double-click header to toggle Mini-HUD
-    this.headerEl.addEventListener('dblclick', (e) => {
+    // Double-click header on mousedown to toggle Mini-HUD immediately
+    let lastHeaderMouseDownTime = 0;
+    let lastHeaderMouseDownX = 0;
+    let lastHeaderMouseDownY = 0;
+
+    this.headerEl.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return;
       if ((e.target as HTMLElement).closest('.relly-header-btn')) return;
-      this.toggleMiniHud();
+
+      const now = Date.now();
+      const timeDiff = now - lastHeaderMouseDownTime;
+      const dist = Math.hypot(e.clientX - lastHeaderMouseDownX, e.clientY - lastHeaderMouseDownY);
+
+      if (timeDiff > 40 && timeDiff < 320 && dist < 8) {
+        lastHeaderMouseDownTime = 0;
+        this.toggleMiniHud();
+      } else {
+        lastHeaderMouseDownTime = now;
+        lastHeaderMouseDownX = e.clientX;
+        lastHeaderMouseDownY = e.clientY;
+      }
+    });
+
+    this.onHeaderCancelMoveBound = (e: MouseEvent) => {
+      if (lastHeaderMouseDownTime !== 0) {
+        const dist = Math.hypot(e.clientX - lastHeaderMouseDownX, e.clientY - lastHeaderMouseDownY);
+        if (dist > 6) {
+          lastHeaderMouseDownTime = 0;
+        }
+      }
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('mousemove', this.onHeaderCancelMoveBound);
+    }
+
+    // Suppress native dblclick so browser mouseup never triggers unwanted toggle
+    this.headerEl.addEventListener('dblclick', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
     });
 
     // Close button
@@ -449,13 +487,28 @@ export class RellyUI extends ContainerHelper {
 
   public setMiniHud(mini: boolean): this {
     this.isMiniHud = mini;
+    if (this.miniHudAnimTimeout) {
+      clearTimeout(this.miniHudAnimTimeout);
+      this.miniHudAnimTimeout = undefined;
+    }
+    this.panelEl.style.transformOrigin =
+      this.panelEl.style.right && !this.panelEl.style.left ? 'top right' : 'top left';
+
     if (this.isMiniHud) {
+      this.panelEl.classList.remove('relly-minihud-expanding');
       this.panelEl.classList.add('relly-mini-hud');
       this.soundEngine.playMiniHud(true);
     } else {
       this.panelEl.classList.remove('relly-mini-hud');
+      this.panelEl.classList.add('relly-minihud-expanding');
       this.soundEngine.playMiniHud(false);
-      this.clampToViewport();
+      if (this.panelEl.style.left) {
+        this.clampToViewport();
+      }
+      this.miniHudAnimTimeout = setTimeout(() => {
+        this.panelEl.classList.remove('relly-minihud-expanding');
+        this.miniHudAnimTimeout = undefined;
+      }, 300);
     }
     if (this.autoSave) this.queueAutoSave();
     return this;
@@ -606,12 +659,22 @@ export class RellyUI extends ContainerHelper {
 
   public setCollapsed(collapsed: boolean): this {
     this.isPanelCollapsed = collapsed;
+    if (this.collapseAnimTimeout) {
+      clearTimeout(this.collapseAnimTimeout);
+      this.collapseAnimTimeout = undefined;
+    }
     if (this.isPanelCollapsed) {
+      this.panelEl.classList.remove('relly-collapse-expanding');
       this.panelEl.classList.add('relly-collapsed');
       this.bindingEngine.pause();
     } else {
       this.panelEl.classList.remove('relly-collapsed');
+      this.panelEl.classList.add('relly-collapse-expanding');
       this.bindingEngine.resume();
+      this.collapseAnimTimeout = setTimeout(() => {
+        this.panelEl.classList.remove('relly-collapse-expanding');
+        this.collapseAnimTimeout = undefined;
+      }, 300);
     }
     if (this.autoSave) this.queueAutoSave();
     return this;
@@ -787,8 +850,19 @@ export class RellyUI extends ContainerHelper {
   }
 
   public destroy(): void {
+    if (this.miniHudAnimTimeout) {
+      clearTimeout(this.miniHudAnimTimeout);
+      this.miniHudAnimTimeout = undefined;
+    }
+    if (this.collapseAnimTimeout) {
+      clearTimeout(this.collapseAnimTimeout);
+      this.collapseAnimTimeout = undefined;
+    }
     if (typeof window !== 'undefined') {
       window.removeEventListener('resize', this.onResizeBound);
+      if (this.onHeaderCancelMoveBound) {
+        window.removeEventListener('mousemove', this.onHeaderCancelMoveBound);
+      }
       if (this.sparklineAnimId) {
         cancelAnimationFrame(this.sparklineAnimId);
       }

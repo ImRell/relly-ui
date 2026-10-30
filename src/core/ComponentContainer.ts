@@ -437,7 +437,7 @@ export abstract class ContainerHelper {
     ) {
       const opts = targetOrOptions;
       const label = opts.label || (opts.property.charAt(0).toUpperCase() + opts.property.slice(1));
-      const comp = new Point2D(label, opts.object, opts.property, this.bindingEngine, this.presetManager);
+      const comp = new Point2D(label, opts.object, opts.property, this.bindingEngine, this.presetManager, this.soundEngine);
       if (opts.min !== undefined) comp.setMin(opts.min);
       if (opts.max !== undefined) comp.setMax(opts.max);
       if (opts.step !== undefined) comp.setStep(opts.step);
@@ -451,7 +451,7 @@ export abstract class ContainerHelper {
     }
 
     const label = property ? (property.charAt(0).toUpperCase() + property.slice(1)) : '';
-    const comp = new Point2D(label, targetOrOptions, property!, this.bindingEngine, this.presetManager);
+    const comp = new Point2D(label, targetOrOptions, property!, this.bindingEngine, this.presetManager, this.soundEngine);
     if (options?.min !== undefined) comp.setMin(options.min);
     if (options?.max !== undefined) comp.setMax(options.max);
     if (options?.step !== undefined) comp.setStep(options.step);
@@ -474,7 +474,7 @@ export abstract class ContainerHelper {
     ) {
       const opts = targetOrOptions;
       const label = opts.label || (opts.property.charAt(0).toUpperCase() + opts.property.slice(1));
-      const comp = new Point3D(label, opts.object, opts.property, this.bindingEngine, this.presetManager);
+      const comp = new Point3D(label, opts.object, opts.property, this.bindingEngine, this.presetManager, this.soundEngine);
       if (opts.min !== undefined) comp.setMin(opts.min);
       if (opts.max !== undefined) comp.setMax(opts.max);
       if (opts.step !== undefined) comp.setStep(opts.step);
@@ -489,7 +489,7 @@ export abstract class ContainerHelper {
     }
 
     const label = property ? (property.charAt(0).toUpperCase() + property.slice(1)) : '';
-    const comp = new Point3D(label, targetOrOptions, property!, this.bindingEngine, this.presetManager);
+    const comp = new Point3D(label, targetOrOptions, property!, this.bindingEngine, this.presetManager, this.soundEngine);
     if (options?.min !== undefined) comp.setMin(options.min);
     if (options?.max !== undefined) comp.setMax(options.max);
     if (options?.step !== undefined) comp.setStep(options.step);

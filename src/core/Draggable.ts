@@ -35,24 +35,44 @@ export class Draggable {
   public clampToViewport(): void {
     if (typeof window === 'undefined') return;
 
-    const rect = this.panel.getBoundingClientRect();
-    const panelWidth = rect.width;
-    const panelHeight = rect.height;
+    if (this.panel.style.right && !this.panel.style.left) {
+      const curRight = parseFloat(this.panel.style.right) || 0;
+      if (curRight < 0) {
+        this.panel.style.right = '0px';
+      }
+      const curTop = parseFloat(this.panel.style.top) || 0;
+      const panelHeight = this.panel.offsetHeight || 200;
+      const maxTop = Math.max(0, window.innerHeight - panelHeight);
+      if (curTop > maxTop) this.panel.style.top = `${maxTop}px`;
+      if (curTop < 0) this.panel.style.top = '0px';
+      return;
+    }
+
+    const panelWidth = this.panel.offsetWidth || parseFloat(this.panel.style.width) || 300;
+    const panelHeight = this.panel.offsetHeight || parseFloat(this.panel.style.height) || 200;
     const maxLeft = Math.max(0, window.innerWidth - panelWidth);
     const maxTop = Math.max(0, window.innerHeight - panelHeight);
 
-    let newLeft = rect.left;
-    let newTop = rect.top;
+    let curLeft = parseFloat(this.panel.style.left);
+    let curTop = parseFloat(this.panel.style.top);
+
+    if (isNaN(curLeft)) curLeft = this.panel.offsetLeft;
+    if (isNaN(curTop)) curTop = this.panel.offsetTop;
+
+    let newLeft = curLeft;
+    let newTop = curTop;
 
     if (newLeft > maxLeft) newLeft = maxLeft;
     if (newLeft < 0) newLeft = 0;
     if (newTop > maxTop) newTop = maxTop;
     if (newTop < 0) newTop = 0;
 
-    this.panel.style.left = `${Math.round(newLeft)}px`;
-    this.panel.style.top = `${Math.round(newTop)}px`;
-    this.panel.style.right = 'auto';
-    this.panel.style.bottom = 'auto';
+    if (Math.round(newLeft) !== Math.round(curLeft)) {
+      this.panel.style.left = `${Math.round(newLeft)}px`;
+    }
+    if (Math.round(newTop) !== Math.round(curTop)) {
+      this.panel.style.top = `${Math.round(newTop)}px`;
+    }
   }
 
   private onResize(): void {
@@ -64,38 +84,46 @@ export class Draggable {
     if (e.button !== 0) return;
     if ((e.target as HTMLElement).closest('.relly-header-btn')) return;
 
-    this.isDragging = true;
+    this.isDragging = false;
     this.startX = e.clientX;
     this.startY = e.clientY;
 
-    const rect = this.panel.getBoundingClientRect();
-    this.initialLeft = rect.left;
-    this.initialTop = rect.top;
-
-    // Remove right/bottom constraints to avoid layout conflicts when setting left/top
-    this.panel.style.right = 'auto';
-    this.panel.style.bottom = 'auto';
-    this.panel.style.left = `${this.initialLeft}px`;
-    this.panel.style.top = `${this.initialTop}px`;
+    const curLeft = parseFloat(this.panel.style.left);
+    const curTop = parseFloat(this.panel.style.top);
+    if (!isNaN(curLeft)) {
+      this.initialLeft = curLeft;
+    } else {
+      this.initialLeft = this.panel.offsetLeft;
+    }
+    if (!isNaN(curTop)) {
+      this.initialTop = curTop;
+    } else {
+      this.initialTop = this.panel.offsetTop;
+    }
 
     window.addEventListener('mousemove', this.onMouseMoveBound);
     window.addEventListener('mouseup', this.onMouseUpBound);
-    e.preventDefault();
   }
 
   private onMouseMove(e: MouseEvent): void {
-    if (!this.isDragging) return;
-
     const dx = e.clientX - this.startX;
     const dy = e.clientY - this.startY;
+
+    if (!this.isDragging) {
+      if (Math.hypot(dx, dy) < 4) return;
+      this.isDragging = true;
+      this.panel.style.right = 'auto';
+      this.panel.style.bottom = 'auto';
+      this.panel.style.left = `${this.initialLeft}px`;
+      this.panel.style.top = `${this.initialTop}px`;
+    }
 
     let newLeft = this.initialLeft + dx;
     let newTop = this.initialTop + dy;
 
     // Viewport clamping & magnetic edge snapping
-    const rect = this.panel.getBoundingClientRect();
-    const panelWidth = rect.width;
-    const panelHeight = rect.height;
+    const panelWidth = this.panel.offsetWidth || 300;
+    const panelHeight = this.panel.offsetHeight || 200;
     const maxLeft = Math.max(0, window.innerWidth - panelWidth);
     const maxTop = Math.max(0, window.innerHeight - panelHeight);
 

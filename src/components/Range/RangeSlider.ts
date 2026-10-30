@@ -87,6 +87,46 @@ export class RangeSlider extends BaseComponent<RangeVal> {
       this.setRangeValue(curMin, Math.max(vMax, curMin));
     });
 
+    // Mouse wheel adjustments on input boxes
+    const bindWheel = (input: HTMLInputElement, isMin: boolean) => {
+      input.addEventListener(
+        'wheel',
+        (ev: WheelEvent) => {
+          ev.preventDefault();
+          const dir = ev.deltaY < 0 ? 1 : -1;
+          const stepMultiplier = ev.shiftKey ? 10 : ev.altKey ? 0.1 : 1;
+          const delta = this.step * dir * stepMultiplier;
+          const [curMin, curMax] = this.getCurrentRange();
+          if (isMin) {
+            let nextMin = curMin + delta;
+            nextMin = Math.max(this.min, Math.min(curMax, nextMin));
+            const decimals = (this.step.toString().split('.')[1] || '').length;
+            const invStep = 1 / this.step;
+            nextMin = Math.round(nextMin * invStep) / invStep;
+            nextMin = parseFloat(nextMin.toFixed(Math.min(decimals, 4)));
+            if (nextMin !== curMin) {
+              this.triggerTick();
+              this.setRangeValue(nextMin, curMax);
+            }
+          } else {
+            let nextMax = curMax + delta;
+            nextMax = Math.max(curMin, Math.min(this.max, nextMax));
+            const decimals = (this.step.toString().split('.')[1] || '').length;
+            const invStep = 1 / this.step;
+            nextMax = Math.round(nextMax * invStep) / invStep;
+            nextMax = parseFloat(nextMax.toFixed(Math.min(decimals, 4)));
+            if (nextMax !== curMax) {
+              this.triggerTick();
+              this.setRangeValue(curMin, nextMax);
+            }
+          }
+        },
+        { passive: false }
+      );
+    };
+    bindWheel(this.inputMin, true);
+    bindWheel(this.inputMax, false);
+
     // Dragging thumb min
     this.setupThumbDrag(this.thumbMin, 'min');
 

@@ -6,6 +6,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.2] - 2026-10-30
+
+### Added
+- **Custom Vector Stepper Arrows**: Replaced native browser spin buttons on `Point2D` and `Point3D` with sleek embedded SVG stepper buttons (`▲` / `▼`) supporting single clicks, smooth repeat-on-hold, and tactile tick audio.
+- **Mouse Wheel Scrubbing on Vectors, Sliders & Ranges**: Scrolling over coordinate cells, slider boxes, and range min/max inputs smoothly increments/decrements values with modifier key support (`Shift` for 10x, `Alt` for 0.1x) and acoustic feedback.
+- **GPU-Accelerated Mini-HUD Morph & Expansion Animations**: Added smooth springy morph animation (`@keyframes relly-minihud-shrink` and `relly-minihud-expand`) when collapsing and expanding the panel, complete with staggered content slide-in.
+
+### Fixed & Improved
+- **Centered Value Display**: All input boxes across all components (`RangeSlider`, `Slider`, `Point2D`, `Point3D`, `Progress`, `ColorPicker`, `DynamicLabel`) now have cleanly centered values (`text-align: center`).
+- **Wider RangeSlider Input Boxes**: Increased width from `38px` to `48px` (`min-width: 48px; box-sizing: border-box;`), preventing decimals from getting truncated.
+- **Immediate Header Double-Click on Mousedown**: Double-click minimization/expansion now triggers instantly on the second `mousedown` instead of waiting for `mouseup`, eliminating accidental minimizes when dragging.
+- **Zero-Drift Header Expansion**: Fixed X-axis rightward position shift when expanding from Mini-HUD by making drag coordinate conversion trigger only upon actual drag movement and keeping unscaled layout anchoring.
+
+---
+
 ## [1.1.1] - 2026-10-30
 
 ### Added

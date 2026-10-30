@@ -44,6 +44,60 @@
   min-height: 0 !important;
   border-radius: 9999px !important;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--relly-accent);
+  animation: relly-minihud-shrink 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: center top;
+}
+
+.relly-panel.relly-minihud-expanding {
+  animation: relly-minihud-expand 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: center top;
+}
+
+@keyframes relly-minihud-shrink {
+  0% {
+    transform: scale(1.06) translateY(-2px);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(0.96) translateY(1px);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes relly-minihud-expand {
+  0% {
+    transform: scale(0.94) translateY(-6px);
+    opacity: 0.7;
+  }
+  65% {
+    transform: scale(1.02) translateY(1px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.relly-panel.relly-minihud-expanding .relly-body,
+.relly-panel.relly-minihud-expanding .relly-search-bar,
+.relly-panel.relly-minihud-expanding .relly-tabs-bar {
+  animation: relly-fade-slide-down 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes relly-fade-slide-down {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .relly-panel.relly-mini-hud .relly-header {
@@ -362,8 +416,47 @@
   height: 0 !important;
 }
 
-.relly-panel.relly-collapsed .relly-body {
+.relly-panel.relly-collapsed {
+  animation: relly-collapse-shrink 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: center top;
+}
+
+.relly-panel.relly-collapsed .relly-body,
+.relly-panel.relly-collapsed .relly-search-bar,
+.relly-panel.relly-collapsed .relly-tabs-bar,
+.relly-panel.relly-collapsed .relly-resize-handle {
   display: none;
+}
+
+.relly-panel.relly-collapse-expanding {
+  animation: relly-collapse-expand 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: center top;
+}
+
+.relly-panel.relly-collapse-expanding .relly-body,
+.relly-panel.relly-collapse-expanding .relly-search-bar,
+.relly-panel.relly-collapse-expanding .relly-tabs-bar {
+  animation: relly-fade-slide-down 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes relly-collapse-shrink {
+  0% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes relly-collapse-expand {
+  0% {
+    transform: scale(0.96) translateY(-4px);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
 }
 
 /* Toast Badge for Copy Notification */

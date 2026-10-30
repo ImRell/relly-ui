@@ -1,6 +1,7 @@
 import { BaseComponent } from '../../core/BaseComponent';
 import { BindingEngine } from '../../core/BindingEngine';
 import { PresetManager } from '../../core/PresetManager';
+import { SoundEngine } from '../../core/SoundEngine';
 import { Point3DVal } from '../../types';
 
 export class Point3D extends BaseComponent<Point3DVal> {
@@ -8,6 +9,8 @@ export class Point3D extends BaseComponent<Point3DVal> {
   private xInput: HTMLInputElement;
   private yInput: HTMLInputElement;
   private zInput: HTMLInputElement;
+  private soundEngine?: SoundEngine;
+  private lastSoundTime: number = 0;
 
   private min?: number;
   private max?: number;
@@ -18,9 +21,11 @@ export class Point3D extends BaseComponent<Point3DVal> {
     targetObject: any,
     property: string,
     bindingEngine?: BindingEngine,
-    presetManager?: PresetManager
+    presetManager?: PresetManager,
+    soundEngine?: SoundEngine
   ) {
     super(label, targetObject, property, bindingEngine, presetManager);
+    this.soundEngine = soundEngine;
 
     this.containerEl = document.createElement('div');
     this.containerEl.className = 'relly-point3d-container';
@@ -35,8 +40,9 @@ export class Point3D extends BaseComponent<Point3DVal> {
     this.xInput.type = 'number';
     this.xInput.className = 'relly-point3d-input';
     this.xInput.step = String(this.step);
+    const xCell = this.createCell(this.xInput, 'x');
     xItem.appendChild(xTag);
-    xItem.appendChild(this.xInput);
+    xItem.appendChild(xCell);
 
     // Y item
     const yItem = document.createElement('div');
@@ -48,8 +54,9 @@ export class Point3D extends BaseComponent<Point3DVal> {
     this.yInput.type = 'number';
     this.yInput.className = 'relly-point3d-input';
     this.yInput.step = String(this.step);
+    const yCell = this.createCell(this.yInput, 'y');
     yItem.appendChild(yTag);
-    yItem.appendChild(this.yInput);
+    yItem.appendChild(yCell);
 
     // Z item
     const zItem = document.createElement('div');
@@ -61,8 +68,9 @@ export class Point3D extends BaseComponent<Point3DVal> {
     this.zInput.type = 'number';
     this.zInput.className = 'relly-point3d-input';
     this.zInput.step = String(this.step);
+    const zCell = this.createCell(this.zInput, 'z');
     zItem.appendChild(zTag);
-    zItem.appendChild(this.zInput);
+    zItem.appendChild(zCell);
 
     this.containerEl.appendChild(xItem);
     this.containerEl.appendChild(yItem);
@@ -78,6 +86,128 @@ export class Point3D extends BaseComponent<Point3DVal> {
     this.setupInputScrubbing(this.zInput, 'z');
 
     this.update();
+  }
+
+  public setSoundEngine(soundEngine: SoundEngine): this {
+    this.soundEngine = soundEngine;
+    return this;
+  }
+
+  private triggerTick(): void {
+    const now = Date.now();
+    if (now - this.lastSoundTime >= 50) {
+      this.lastSoundTime = now;
+      this.soundEngine?.playTick();
+    }
+  }
+
+  private createCell(input: HTMLInputElement, axis: 'x' | 'y' | 'z'): HTMLElement {
+    const cellWrap = document.createElement('div');
+    cellWrap.className = 'relly-vector-cell';
+
+    const arrows = document.createElement('div');
+    arrows.className = 'relly-stepper-arrows';
+
+    const upBtn = document.createElement('button');
+    upBtn.type = 'button';
+    upBtn.className = 'relly-stepper-btn relly-stepper-btn--up';
+    upBtn.setAttribute('aria-label', `Increase ${axis.toUpperCase()}`);
+    upBtn.innerHTML = '<svg width="7" height="4" viewBox="0 0 7 4" fill="none"><path d="M1 3.2L3.5 0.8L6 3.2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+    const downBtn = document.createElement('button');
+    downBtn.type = 'button';
+    downBtn.className = 'relly-stepper-btn relly-stepper-btn--down';
+    downBtn.setAttribute('aria-label', `Decrease ${axis.toUpperCase()}`);
+    downBtn.innerHTML = '<svg width="7" height="4" viewBox="0 0 7 4" fill="none"><path d="M1 0.8L3.5 3.2L6 0.8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+    this.bindStepperEvents(upBtn, axis, 1);
+    this.bindStepperEvents(downBtn, axis, -1);
+
+    arrows.appendChild(upBtn);
+    arrows.appendChild(downBtn);
+
+    cellWrap.appendChild(input);
+    cellWrap.appendChild(arrows);
+
+    input.addEventListener(
+      'wheel',
+      (ev: WheelEvent) => {
+        ev.preventDefault();
+        const dir = ev.deltaY < 0 ? 1 : -1;
+        const mult = ev.shiftKey ? 10 : ev.altKey ? 0.1 : 1;
+        this.stepAxis(axis, dir, mult);
+      },
+      { passive: false }
+    );
+
+    return cellWrap;
+  }
+
+  private bindStepperEvents(btn: HTMLButtonElement, axis: 'x' | 'y' | 'z', direction: 1 | -1): void {
+    let timeoutId: any = null;
+    let intervalId: any = null;
+
+    const stop = () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+      window.removeEventListener('mouseup', stop);
+    };
+
+    btn.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      e.stopPropagation();
+      this.stepAxis(axis, direction);
+
+      timeoutId = setTimeout(() => {
+        intervalId = setInterval(() => {
+          this.stepAxis(axis, direction);
+        }, 70);
+      }, 300);
+
+      window.addEventListener('mouseup', stop);
+    });
+  }
+
+  private stepAxis(axis: 'x' | 'y' | 'z', direction: 1 | -1, multiplier: number = 1): void {
+    const currentVal = this.getValue();
+    let val: number;
+    if (Array.isArray(currentVal)) {
+      val = currentVal[axis === 'x' ? 0 : axis === 'y' ? 1 : 2] ?? 0;
+    } else {
+      val = currentVal[axis] ?? 0;
+    }
+
+    const stepDelta = this.step * direction * multiplier;
+    let newVal = val + stepDelta;
+    if (this.min !== undefined) newVal = Math.max(this.min, newVal);
+    if (this.max !== undefined) newVal = Math.min(this.max, newVal);
+
+    const decimals = (this.step.toString().split('.')[1] || '').length;
+    const invStep = 1 / this.step;
+    newVal = Math.round(newVal * invStep) / invStep;
+    newVal = parseFloat(newVal.toFixed(Math.min(decimals, 4)));
+
+    if (newVal !== val) {
+      if (Array.isArray(currentVal)) {
+        const nextArr: [number, number, number] = [
+          currentVal[0] ?? 0,
+          currentVal[1] ?? 0,
+          currentVal[2] ?? 0
+        ];
+        nextArr[axis === 'x' ? 0 : axis === 'y' ? 1 : 2] = newVal;
+        this.setValue(nextArr);
+      } else {
+        this.setValue({ ...currentVal, [axis]: newVal });
+      }
+      this.triggerTick();
+    }
   }
 
   private setupInputScrubbing(input: HTMLInputElement, axis: 'x' | 'y' | 'z'): void {
@@ -105,17 +235,28 @@ export class Point3D extends BaseComponent<Point3DVal> {
         newVal = parseFloat(newVal.toFixed(Math.min(decimals, 4)));
 
         const currentVal = this.getValue();
+        let prevAxisVal: number;
         if (Array.isArray(currentVal)) {
-          const nextArr: [number, number, number] = [
-            currentVal[0] ?? 0,
-            currentVal[1] ?? 0,
-            currentVal[2] ?? 0
-          ];
           const idx = axis === 'x' ? 0 : axis === 'y' ? 1 : 2;
-          nextArr[idx] = newVal;
-          this.setValue(nextArr);
+          prevAxisVal = currentVal[idx] ?? 0;
         } else {
-          this.setValue({ ...currentVal, [axis]: newVal });
+          prevAxisVal = currentVal[axis] ?? 0;
+        }
+
+        if (newVal !== prevAxisVal) {
+          if (Array.isArray(currentVal)) {
+            const nextArr: [number, number, number] = [
+              currentVal[0] ?? 0,
+              currentVal[1] ?? 0,
+              currentVal[2] ?? 0
+            ];
+            const idx = axis === 'x' ? 0 : axis === 'y' ? 1 : 2;
+            nextArr[idx] = newVal;
+            this.setValue(nextArr);
+          } else {
+            this.setValue({ ...currentVal, [axis]: newVal });
+          }
+          this.triggerTick();
         }
         ev.preventDefault();
       }

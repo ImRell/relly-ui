@@ -66,6 +66,28 @@ export class Slider extends BaseComponent<number> {
     // Virtual Jog-Dial / Drag Scrubbing on number input
     this.setupJogScrubbing();
 
+    // Mouse wheel scrubbing on number input
+    this.numberInput.addEventListener(
+      'wheel',
+      (ev: WheelEvent) => {
+        ev.preventDefault();
+        const dir = ev.deltaY < 0 ? 1 : -1;
+        const stepMultiplier = ev.shiftKey ? 10 : ev.altKey ? 0.1 : 1;
+        const stepDelta = this.step * stepMultiplier;
+        let newVal = this.getValue() + dir * stepDelta;
+        newVal = Math.max(this.min, Math.min(this.max, newVal));
+        const decimals = (stepDelta.toString().split('.')[1] || '').length;
+        const invStep = 1 / stepDelta;
+        newVal = Math.round(newVal * invStep) / invStep;
+        newVal = parseFloat(newVal.toFixed(Math.min(decimals, 4)));
+        if (newVal !== this.getValue()) {
+          this.triggerSound();
+          this.setValue(newVal);
+        }
+      },
+      { passive: false }
+    );
+
     this.update();
   }
 
